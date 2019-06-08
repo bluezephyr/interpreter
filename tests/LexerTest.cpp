@@ -22,21 +22,14 @@ TEST_GROUP(LexerTest)
     void teardown()
     {
         delete(lexer);
-        delete(token);
     }
 
     void checkSingleCharToken(char c, Token::TokenType type)
     {
-        char string[2];
-
-        string[0] = c;
-        string[1] = 0;
-
-        lexer = new Lexer(string);
         token = lexer->nextToken();
-
         CHECK_EQUAL(type, token->type);
         CHECK_EQUAL(std::string(1, c), *(token->literal));
+        delete(token);
     }
 };
 
@@ -47,45 +40,68 @@ TEST(LexerTest, nextTokenEOF)
 
     CHECK_EQUAL(Token::ENDOFFILE, token->type);
     CHECK(token->literal->empty());
+    delete(token);
 }
 
 TEST(LexerTest, nextTokenAssign)
 {
+    lexer = new Lexer("=");
     checkSingleCharToken('=', Token::ASSIGN);
 }
 
 TEST(LexerTest, nextTokenPlus)
 {
+    lexer = new Lexer("+");
     checkSingleCharToken('+', Token::PLUS);
 }
 
 TEST(LexerTest, nextTokenLeftParenthesis)
 {
+    lexer = new Lexer("(");
     checkSingleCharToken('(', Token::LPAREN);
 }
 
 TEST(LexerTest, nextTokenRightParenthesis)
 {
+    lexer = new Lexer(")");
     checkSingleCharToken(')', Token::RPAREN);
 }
 
 TEST(LexerTest, nextTokenLeftBracket)
 {
+    lexer = new Lexer("[");
     checkSingleCharToken('[', Token::LBRACE);
 }
 
 TEST(LexerTest, nextTokenRightBracket)
 {
+    lexer = new Lexer("]");
     checkSingleCharToken(']', Token::RBRACE);
 }
 
 TEST(LexerTest, nextTokenComma)
 {
+    lexer = new Lexer(",");
     checkSingleCharToken(',', Token::COMMA);
 }
 
 TEST(LexerTest, nextTokenSemicolon)
 {
+    lexer = new Lexer(";");
+    checkSingleCharToken(';', Token::SEMICOLON);
+}
+
+TEST(LexerTest, readTokenSequence)
+{
+    lexer = new Lexer("=+()[],;");
+
+    checkSingleCharToken('=', Token::ASSIGN);
+    checkSingleCharToken('+', Token::PLUS);
+    checkSingleCharToken('(', Token::LPAREN);
+    checkSingleCharToken(')', Token::RPAREN);
+    checkSingleCharToken('[', Token::LBRACE);
+    checkSingleCharToken(']', Token::RBRACE);
+    checkSingleCharToken(',', Token::COMMA);
     checkSingleCharToken(';', Token::SEMICOLON);
 }
 

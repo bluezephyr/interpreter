@@ -63,6 +63,7 @@ Token* Lexer::nextToken()
             break;
     }
 
+    readChar();
     return token;
 }
 
