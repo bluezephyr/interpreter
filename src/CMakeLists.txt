@@ -1,6 +1,9 @@
 add_library(interpreterlib
         Lexer.h
-        Lexer.cpp)
+        Lexer.cpp
+        Token.h
+        Token.cpp
+        )
 
 add_executable(interpreter
         main.cpp

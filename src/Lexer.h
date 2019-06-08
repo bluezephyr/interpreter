@@ -9,11 +9,25 @@
 #ifndef INTERPRETER_LEXER_H
 #define INTERPRETER_LEXER_H
 
+#include "Token.h"
+
 class Lexer
 {
 public:
-    explicit Lexer();
+    explicit Lexer(const char*);
     virtual ~Lexer();
+
+    Token* nextToken();
+
+private:
+    const char *input;
+    int curPos;
+    int readPos;
+    char c;
+
+    void readChar();
+
+    std::string *createString(int pos);
 };
 
 #endif //INTERPRETER_LEXER_H
