@@ -1,2 +1,2 @@
-# interpreter
+# Interpreter
 Interpreter for the Monkey language
