@@ -105,6 +105,26 @@ TEST(LexerTest, readTokenSequence)
     checkSingleCharToken(';', Token::SEMICOLON);
 }
 
+TEST(LexerTest, readTokenLet)
+{
+    lexer = new Lexer("let");
+    token = lexer->nextToken();
+
+    CHECK_EQUAL(Token::LET, token->type);
+    CHECK_EQUAL(std::string("let"), *(token->literal));
+    delete(token);
+}
+
+TEST(LexerTest, readTokenFn)
+{
+    lexer = new Lexer("fn");
+    token = lexer->nextToken();
+
+    CHECK_EQUAL(Token::FUNCTION, token->type);
+    CHECK_EQUAL(std::string("fn"), *(token->literal));
+    delete(token);
+}
+
 /*
  * Tests to write:
  * -

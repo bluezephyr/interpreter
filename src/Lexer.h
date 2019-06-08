@@ -26,8 +26,9 @@ private:
     char c;
 
     void readChar();
-
+    static bool isLetter(char l);
     std::string *createString(int pos);
+    std::string *readIdentifier();
 };
 
 #endif //INTERPRETER_LEXER_H

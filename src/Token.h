@@ -31,11 +31,15 @@ public:
         LET
     };
 
+    explicit Token(std::string *literal);
     Token(TokenType type, std::string *literal);
     ~Token();
 
     enum TokenType type;
     std::string *literal;
+
+private:
+    TokenType lookUpType(std::string *string);
 };
 
 

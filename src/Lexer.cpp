@@ -59,7 +59,14 @@ Token* Lexer::nextToken()
             break;
 
         default:
-            token = new Token(Token::ILLEGAL, createString(curPos));
+            if (isLetter(c))
+            {
+                token = new Token(readIdentifier());
+            }
+            else
+            {
+                token = new Token(Token::ILLEGAL, createString(curPos));
+            }
             break;
     }
 
@@ -73,10 +80,26 @@ void Lexer::readChar()
     curPos = readPos++;
 }
 
+bool Lexer::isLetter(char l)
+{
+    return ('a' <= l && l <= 'z') || ('A' <= l && l <= 'Z') || (l == '_');
+}
+
 std::string *Lexer::createString(int pos)
 {
     auto s = new std::string(1, input[pos]);
     return s;
+}
+
+std::string *Lexer::readIdentifier()
+{
+    int start = curPos;
+    while (isLetter(c))
+    {
+        readChar();
+    }
+
+    return new std::string(input, curPos-start);
 }
 
 Lexer::~Lexer()
