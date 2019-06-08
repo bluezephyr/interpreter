@@ -8,9 +8,8 @@
 
 #include "Lexer.h"
 
-Lexer::Lexer(const char *input)
+Lexer::Lexer(const char *input) : input {input}
 {
-    this->input = input;
     curPos = 0;
     readPos = 0;
     c = 0;
@@ -24,8 +23,8 @@ Token* Lexer::nextToken()
     switch (c)
     {
         case 0:
-           token = new Token(Token::ENDOFFILE, new std::string());
-           break;
+            token = new Token(Token::ENDOFFILE, new std::string());
+            break;
 
         case '=':
             token = new Token(Token::ASSIGN, createString(curPos));
