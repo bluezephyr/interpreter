@@ -55,6 +55,42 @@ TEST(LexerTest, nextTokenPlus)
     checkSingleCharToken('+', Token::PLUS);
 }
 
+TEST(LexerTest, nextTokenMinus)
+{
+    lexer = new Lexer("-");
+    checkSingleCharToken('-', Token::MINUS);
+}
+
+TEST(LexerTest, nextTokenBang)
+{
+    lexer = new Lexer("!");
+    checkSingleCharToken('!', Token::BANG);
+}
+
+TEST(LexerTest, nextTokenAsterisk)
+{
+    lexer = new Lexer("*");
+    checkSingleCharToken('*', Token::ASTERISK);
+}
+
+TEST(LexerTest, nextTokenSlash)
+{
+    lexer = new Lexer("/");
+    checkSingleCharToken('/', Token::SLASH);
+}
+
+TEST(LexerTest, nextTokenLessThan)
+{
+    lexer = new Lexer("<");
+    checkSingleCharToken('<', Token::LT);
+}
+
+TEST(LexerTest, nextTokenGreaterThan)
+{
+    lexer = new Lexer(">");
+    checkSingleCharToken('>', Token::GT);
+}
+
 TEST(LexerTest, nextTokenLeftParenthesis)
 {
     lexer = new Lexer("(");
@@ -91,18 +127,24 @@ TEST(LexerTest, nextTokenSemicolon)
     checkSingleCharToken(';', Token::SEMICOLON);
 }
 
-TEST(LexerTest, readTokenSequence)
+TEST(LexerTest, readSingleCharTokenSequence)
 {
-    lexer = new Lexer("=+()[],;");
+    lexer = new Lexer("=+-!*/<>,;()[]");
 
     checkSingleCharToken('=', Token::ASSIGN);
     checkSingleCharToken('+', Token::PLUS);
+    checkSingleCharToken('-', Token::MINUS);
+    checkSingleCharToken('!', Token::BANG);
+    checkSingleCharToken('*', Token::ASTERISK);
+    checkSingleCharToken('/', Token::SLASH);
+    checkSingleCharToken('<', Token::LT);
+    checkSingleCharToken('>', Token::GT);
+    checkSingleCharToken(',', Token::COMMA);
+    checkSingleCharToken(';', Token::SEMICOLON);
     checkSingleCharToken('(', Token::LPAREN);
     checkSingleCharToken(')', Token::RPAREN);
     checkSingleCharToken('[', Token::LBRACE);
     checkSingleCharToken(']', Token::RBRACE);
-    checkSingleCharToken(',', Token::COMMA);
-    checkSingleCharToken(';', Token::SEMICOLON);
 }
 
 TEST(LexerTest, readTokenLet)

@@ -34,6 +34,30 @@ Token* Lexer::nextToken()
             token = new Token(Token::PLUS, createString(curPos));
             break;
 
+        case '-':
+            token = new Token(Token::MINUS, createString(curPos));
+            break;
+
+        case '!':
+            token = new Token(Token::BANG, createString(curPos));
+            break;
+
+        case '*':
+            token = new Token(Token::ASTERISK, createString(curPos));
+            break;
+
+        case '/':
+            token = new Token(Token::SLASH, createString(curPos));
+            break;
+
+        case '<':
+            token = new Token(Token::LT, createString(curPos));
+            break;
+
+        case '>':
+            token = new Token(Token::GT, createString(curPos));
+            break;
+
         case '(':
             token = new Token(Token::LPAREN, createString(curPos));
             break;
