@@ -32,9 +32,7 @@ Token* Lexer::nextToken()
         case '=':
             if (peekChar() == '=')
             {
-                auto start = curPos;
-                readChar();
-                token = new Token(Token::EQ, createString(start, curPos));
+                token = readTwoCharToken(Token::EQ);
             }
             else
             {
@@ -53,9 +51,7 @@ Token* Lexer::nextToken()
         case '!':
             if (peekChar() == '=')
             {
-                auto start = curPos;
-                readChar();
-                token = new Token(Token::NEQ, createString(start, curPos));
+                token = readTwoCharToken(Token::NEQ);
             }
             else
             {
@@ -123,13 +119,6 @@ Token* Lexer::nextToken()
     return token;
 }
 
-Token *Lexer::readSingleCharToken(Token::TokenType type)
-{
-    auto *token = new Token(type, createString(curPos, curPos));
-    readChar();
-    return token;
-}
-
 void Lexer::readChar()
 {
     currentChar = input[readPos];
@@ -165,6 +154,22 @@ void Lexer::skipWhiteSpace()
             break;
         }
     }
+}
+
+Token *Lexer::readSingleCharToken(Token::TokenType type)
+{
+    auto *token = new Token(type, createString(curPos, curPos));
+    readChar();
+    return token;
+}
+
+Token *Lexer::readTwoCharToken(Token::TokenType type)
+{
+    Token *token;
+    auto start = curPos;
+    readChar();
+    token = new Token(type, createString(start, curPos));
+    return token;
 }
 
 std::string *Lexer::createString(int start, int end)

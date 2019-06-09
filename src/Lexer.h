@@ -30,6 +30,7 @@ private:
     static bool isLetter(char c);
     static bool isDigit(char c);
     Token *readSingleCharToken(Token::TokenType type);
+    Token *readTwoCharToken(Token::TokenType type);
     std::string *createString(int start, int end);
     std::string *readIdentifier();
     std::string *readNumber();
