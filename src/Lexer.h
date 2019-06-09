@@ -16,7 +16,6 @@ class Lexer
 public:
     explicit Lexer(const char*);
     virtual ~Lexer();
-
     Token* nextToken();
 
 private:
@@ -27,11 +26,14 @@ private:
 
     void readChar();
     char peekChar();
-    static bool isLetter(char l);
+    void skipWhiteSpace();
+    static bool isLetter(char c);
+    static bool isDigit(char c);
+    Token *readSingleCharToken(Token::TokenType type);
     std::string *createString(int start, int end);
     std::string *readIdentifier();
+    std::string *readNumber();
 
-    Token *readSingleCharToken(Token::TokenType type);
 };
 
 #endif //INTERPRETER_LEXER_H

@@ -181,58 +181,39 @@ TEST(LexerTest, nextTokenNotEqual)
     assertNextTokenDoubleCharToken(Token::NEQ, std::string("!="));
 }
 
-TEST(LexerTest, readTokenLet)
+TEST(LexerTest, readTokenKeywordLet)
 {
     lexer = new Lexer("let");
-    token = lexer->nextToken();
-
-    CHECK_EQUAL(Token::LET, token->type);
-    CHECK_EQUAL(std::string("let"), *(token->literal));
-    delete(token);
+    assertNextToken(Token::LET, std::string("let"));
 }
 
 TEST(LexerTest, readTokenOneLetterIdentifier)
 {
     lexer = new Lexer("i");
-    token = lexer->nextToken();
-
-    CHECK_EQUAL(Token::IDENTIFIER, token->type);
-    CHECK_EQUAL(std::string("i"), *(token->literal));
-    delete(token);
+    assertNextToken(Token::IDENTIFIER, std::string("i"));
 }
 
 TEST(LexerTest, readTokenIdentifier)
 {
     lexer = new Lexer("five");
-    token = lexer->nextToken();
-
-    CHECK_EQUAL(Token::IDENTIFIER, token->type);
-    CHECK_EQUAL(std::string("five"), *(token->literal));
-    delete(token);
+    assertNextToken(Token::IDENTIFIER, std::string("five"));
 }
 
-IGNORE_TEST(LexerTest, readAssignmentTokens)
+TEST(LexerTest, readAssignmentTokens)
 {
-    lexer = new Lexer("let five = 5;");
+    lexer = new Lexer("let five\t =\
+                       5;");
 
     assertNextToken(Token::LET, std::string("let"));
     assertNextToken(Token::IDENTIFIER, std::string("five"));
-    //assertNextToken(Token::ASSIGN, std::string("="));
-    //assertNextToken(Token::INT, std::string("5"));
-    //assertNextToken(Token::SEMICOLON, std::string(";"));
+    assertNextToken(Token::ASSIGN, std::string("="));
+    assertNextToken(Token::INT, std::string("5"));
+    assertNextToken(Token::SEMICOLON, std::string(";"));
 }
 
-TEST(LexerTest, readTokenFn)
+TEST(LexerTest, readTokenKeywordFn)
 {
     lexer = new Lexer("fn");
-    token = lexer->nextToken();
-
-    CHECK_EQUAL(Token::FUNCTION, token->type);
-    CHECK_EQUAL(std::string("fn"), *(token->literal));
-    delete(token);
+    assertNextToken(Token::FUNCTION, std::string("fn"));
 }
 
-/*
- * Tests to write:
- * -
- */

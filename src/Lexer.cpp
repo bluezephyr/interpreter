@@ -20,6 +20,8 @@ Token* Lexer::nextToken()
 {
     Token *token;
 
+    skipWhiteSpace();
+
     switch (currentChar)
     {
         case 0:
@@ -106,6 +108,11 @@ Token* Lexer::nextToken()
             {
                 token = new Token(readIdentifier());
             }
+            else if (isDigit(currentChar))
+            {
+                token = new Token(readNumber());
+                token->type = Token::INT;
+            }
             else
             {
                 token = readSingleCharToken(Token::ILLEGAL);
@@ -134,9 +141,30 @@ char Lexer::peekChar()
     return input[readPos];
 }
 
-bool Lexer::isLetter(char l)
+bool Lexer::isLetter(char c)
 {
-    return ('a' <= l && l <= 'z') || ('A' <= l && l <= 'Z') || (l == '_');
+    return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || (c == '_');
+}
+
+bool Lexer::isDigit(char c)
+{
+    return ('0' <= c && c <= '9');
+}
+
+void Lexer::skipWhiteSpace()
+{
+    while (currentChar != 0)
+    {
+        if ((currentChar == ' ') || (currentChar == '\t') ||
+                (currentChar == '\n') || (currentChar == '\r'))
+        {
+            readChar();
+        }
+        else
+        {
+            break;
+        }
+    }
 }
 
 std::string *Lexer::createString(int start, int end)
@@ -149,6 +177,16 @@ std::string *Lexer::readIdentifier()
 {
     int start = curPos;
     while (isLetter(currentChar))
+    {
+        readChar();
+    }
+    return new std::string(input+start, curPos-start);
+}
+
+std::string *Lexer::readNumber()
+{
+    int start = curPos;
+    while (isDigit(currentChar))
     {
         readChar();
     }
