@@ -217,3 +217,32 @@ TEST(LexerTest, readTokenKeywordFn)
     assertNextToken(Token::FUNCTION, std::string("fn"));
 }
 
+TEST(LexerTest, readTokenKeywordTrue)
+{
+    lexer = new Lexer("true");
+    assertNextToken(Token::TRUE, std::string("true"));
+}
+
+TEST(LexerTest, readTokenKeywordFalse)
+{
+    lexer = new Lexer("false");
+    assertNextToken(Token::FALSE, std::string("false"));
+}
+
+TEST(LexerTest, readTokenKeywordIf)
+{
+    lexer = new Lexer("if");
+    assertNextToken(Token::IF, std::string("if"));
+}
+
+TEST(LexerTest, readTokenKeywordElse)
+{
+    lexer = new Lexer("else");
+    assertNextToken(Token::ELSE, std::string("else"));
+}
+
+TEST(LexerTest, readTokenKeywordReturn)
+{
+    lexer = new Lexer("return");
+    assertNextToken(Token::RETURN, std::string("return"));
+}

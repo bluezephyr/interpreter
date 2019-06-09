@@ -36,7 +36,12 @@ public:
         LBRACE,
         RBRACE,
         FUNCTION,
-        LET
+        LET,
+        TRUE,
+        FALSE,
+        IF,
+        ELSE,
+        RETURN
     };
 
     explicit Token(std::string *literal);

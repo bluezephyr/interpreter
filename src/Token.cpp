@@ -27,9 +27,35 @@ Token::TokenType Token::lookUpType(std::string *string)
     {
         return LET;
     }
+
     if (*string == std::string("fn"))
     {
         return FUNCTION;
+    }
+
+    if (*string == std::string("true"))
+    {
+        return TRUE;
+    }
+
+    if (*string == std::string("false"))
+    {
+        return FALSE;
+    }
+
+    if (*string == std::string("if"))
+    {
+        return IF;
+    }
+
+    if (*string == std::string("else"))
+    {
+        return ELSE;
+    }
+
+    if (*string == std::string("return"))
+    {
+        return RETURN;
     }
 
     // Not a keyword
