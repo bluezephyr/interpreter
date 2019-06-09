@@ -12,7 +12,7 @@ Lexer::Lexer(const char *input) : input {input}
 {
     curPos = 0;
     readPos = 0;
-    c = 0;
+    currentChar = 0;
     readChar();
 }
 
@@ -20,88 +20,118 @@ Token* Lexer::nextToken()
 {
     Token *token;
 
-    switch (c)
+    switch (currentChar)
     {
         case 0:
             token = new Token(Token::ENDOFFILE, new std::string());
+            readChar();
             break;
 
         case '=':
-            token = new Token(Token::ASSIGN, createString(curPos));
+            if (peekChar() == '=')
+            {
+                auto start = curPos;
+                readChar();
+                token = new Token(Token::EQ, createString(start, curPos));
+            }
+            else
+            {
+                token = readSingleCharToken(Token::ASSIGN);
+            }
             break;
 
         case '+':
-            token = new Token(Token::PLUS, createString(curPos));
+            token = readSingleCharToken(Token::PLUS);
             break;
 
         case '-':
-            token = new Token(Token::MINUS, createString(curPos));
+            token = readSingleCharToken(Token::MINUS);
             break;
 
         case '!':
-            token = new Token(Token::BANG, createString(curPos));
+            if (peekChar() == '=')
+            {
+                auto start = curPos;
+                readChar();
+                token = new Token(Token::NEQ, createString(start, curPos));
+            }
+            else
+            {
+                token = readSingleCharToken(Token::BANG);
+            }
             break;
 
         case '*':
-            token = new Token(Token::ASTERISK, createString(curPos));
+            token = readSingleCharToken(Token::ASTERISK);
             break;
 
         case '/':
-            token = new Token(Token::SLASH, createString(curPos));
+            token = readSingleCharToken(Token::SLASH);
             break;
 
         case '<':
-            token = new Token(Token::LT, createString(curPos));
+            token = readSingleCharToken(Token::LT);
             break;
 
         case '>':
-            token = new Token(Token::GT, createString(curPos));
+            token = readSingleCharToken(Token::GT);
             break;
 
         case '(':
-            token = new Token(Token::LPAREN, createString(curPos));
+            token = readSingleCharToken(Token::LPAREN);
             break;
 
         case ')':
-            token = new Token(Token::RPAREN, createString(curPos));
+            token = readSingleCharToken(Token::RPAREN);
             break;
 
         case '[':
-            token = new Token(Token::LBRACE, createString(curPos));
+            token = readSingleCharToken(Token::LBRACE);
             break;
 
         case ']':
-            token = new Token(Token::RBRACE, createString(curPos));
+            token = readSingleCharToken(Token::RBRACE);
             break;
 
         case ',':
-            token = new Token(Token::COMMA, createString(curPos));
+            token = readSingleCharToken(Token::COMMA);
             break;
 
         case ';':
-            token = new Token(Token::SEMICOLON, createString(curPos));
+            token = readSingleCharToken(Token::SEMICOLON);
             break;
 
         default:
-            if (isLetter(c))
+            if (isLetter(currentChar))
             {
                 token = new Token(readIdentifier());
             }
             else
             {
-                token = new Token(Token::ILLEGAL, createString(curPos));
+                token = readSingleCharToken(Token::ILLEGAL);
             }
             break;
     }
 
+    return token;
+}
+
+Token *Lexer::readSingleCharToken(Token::TokenType type)
+{
+    auto *token = new Token(type, createString(curPos, curPos));
     readChar();
     return token;
 }
 
 void Lexer::readChar()
 {
-    c = input[readPos];
+    currentChar = input[readPos];
     curPos = readPos++;
+}
+
+char Lexer::peekChar()
+{
+    return input[readPos];
 }
 
 bool Lexer::isLetter(char l)
@@ -109,21 +139,20 @@ bool Lexer::isLetter(char l)
     return ('a' <= l && l <= 'z') || ('A' <= l && l <= 'Z') || (l == '_');
 }
 
-std::string *Lexer::createString(int pos)
+std::string *Lexer::createString(int start, int end)
 {
-    auto s = new std::string(1, input[pos]);
+    auto s = new std::string(input+start, end-start+1);
     return s;
 }
 
 std::string *Lexer::readIdentifier()
 {
     int start = curPos;
-    while (isLetter(c))
+    while (isLetter(currentChar))
     {
         readChar();
     }
-
-    return new std::string(input, curPos-start);
+    return new std::string(input+start, curPos-start);
 }
 
 Lexer::~Lexer()

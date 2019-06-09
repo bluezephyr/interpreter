@@ -31,7 +31,9 @@ Token::TokenType Token::lookUpType(std::string *string)
     {
         return FUNCTION;
     }
-    return ILLEGAL;
+
+    // Not a keyword
+    return IDENTIFIER;
 }
 
 

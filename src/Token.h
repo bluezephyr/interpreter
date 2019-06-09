@@ -27,6 +27,8 @@ public:
         SLASH,
         LT,
         GT,
+        EQ,
+        NEQ,
         COMMA,
         SEMICOLON,
         LPAREN,
@@ -45,7 +47,7 @@ public:
     std::string *literal;
 
 private:
-    TokenType lookUpType(std::string *string);
+    static TokenType lookUpType(std::string *string);
 };
 
 
