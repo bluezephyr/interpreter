@@ -169,6 +169,7 @@ Token *Lexer::readTwoCharToken(Token::TokenType type)
     auto start = curPos;
     readChar();
     token = new Token(type, createString(start, curPos));
+    readChar();
     return token;
 }
 

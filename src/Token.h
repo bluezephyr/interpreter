@@ -48,6 +48,7 @@ public:
     Token(TokenType type, std::string *literal);
     ~Token();
 
+    std::string getTypeString();
     enum TokenType type;
     std::string *literal;
 

@@ -181,6 +181,16 @@ TEST(LexerTest, nextTokenNotEqual)
     assertNextTokenDoubleCharToken(Token::NEQ, std::string("!="));
 }
 
+TEST(LexerTest, readTokenSequenceWithTwoCharTokens)
+{
+    lexer = new Lexer("===!==!=");
+    assertNextToken(Token::EQ, std::string("=="));
+    assertNextToken(Token::ASSIGN, std::string("="));
+    assertNextToken(Token::NEQ, std::string("!="));
+    assertNextToken(Token::ASSIGN, std::string("="));
+    assertNextToken(Token::NEQ, std::string("!="));
+}
+
 TEST(LexerTest, readTokenKeywordLet)
 {
     lexer = new Lexer("let");

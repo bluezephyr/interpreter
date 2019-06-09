@@ -6,9 +6,29 @@
  *
  */
 #include <iostream>
+#include "Lexer.h"
 
 int main()
 {
-    std::cout << "Monkey Interpreter!" << std::endl;
+    std::cout << "Monkey Programming Language Interpreter!" << std::endl;
+    std::cout << "Type in your commands (exit with CRTL-D)" << std::endl;
+    std::cout << ">>> ";
+    for (std::string line; std::getline(std::cin, line);)
+    {
+        if (!line.empty())
+        {
+            auto lexer = Lexer(line.c_str());
+            Token *token = lexer.nextToken();
+            while (token->type != Token::ENDOFFILE)
+            {
+                std::cout << *(token->literal) << std::endl;
+                delete(token);
+                token = lexer.nextToken();
+            }
+
+        }
+        std::cout << ">>> ";
+    }
+    std::cout << std::endl;
     return 0;
 }

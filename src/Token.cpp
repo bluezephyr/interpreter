@@ -62,4 +62,3 @@ Token::TokenType Token::lookUpType(std::string *string)
     return IDENTIFIER;
 }
 
-
