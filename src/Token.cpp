@@ -8,12 +8,17 @@
 
 #include "Token.h"
 
-Token::Token(const std::string& literal) : literal {literal}
+Token::Token(const std::string& literal)
 {
     type = lookUpType(literal);
+    this->literal = std::make_shared<std::string>(literal);
 }
 
-Token::Token(Token::TokenType type, const std::string& literal) : type {type}, literal {literal} {}
+Token::Token(Token::TokenType type, const std::string& literal) : type {type}
+{
+    this->literal = std::make_shared<std::string>(literal);
+}
+
 Token::~Token() = default;
 
 Token::TokenType Token::lookUpType(const std::string& tokenString)

@@ -8,5 +8,6 @@ add_subdirectory(src)
 
 option(COMPILE_TESTS "Compile the tests" OFF)
 if (COMPILE_TESTS)
+    enable_testing()
     add_subdirectory(tests)
 endif(COMPILE_TESTS)

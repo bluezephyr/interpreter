@@ -9,6 +9,7 @@
 #ifndef INTERPRETER_TOKEN_H
 #define INTERPRETER_TOKEN_H
 
+#include <memory>
 #include <string>
 
 class Token
@@ -50,14 +51,11 @@ public:
     ~Token();
 
     enum TokenType type;
-    std::string literal;
-
+    std::shared_ptr<std::string> literal;
     //std::string getTypeString();
 
 private:
     static TokenType lookUpType(const std::string& tokenString);
 };
-
-
 
 #endif //INTERPRETER_TOKEN_H
