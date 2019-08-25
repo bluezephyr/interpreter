@@ -15,11 +15,11 @@ TEST_GROUP(LexerTest)
     Lexer *lexer;
     std::unique_ptr<Token> token;
 
-    void setup()
+    void setup() override
     {
     }
 
-    void teardown()
+    void teardown() override
     {
         delete(lexer);
     }
@@ -28,21 +28,21 @@ TEST_GROUP(LexerTest)
     {
         token = lexer->nextToken();
         CHECK_EQUAL(type, token->type);
-        CHECK_EQUAL(std::string(1, c), token->literal);
+        CHECK_EQUAL(std::string(1, c), *(token->literal.get()));
     }
 
     void assertNextTokenDoubleCharToken(Token::TokenType type, const std::string& literal)
     {
         token = lexer->nextToken();
         CHECK_EQUAL(type, token->type);
-        CHECK_EQUAL(literal, token->literal);
+        CHECK_EQUAL(literal, *(token->literal.get()));
     }
 
     void assertNextToken(Token::TokenType type, const std::string& literal)
     {
         token = lexer->nextToken();
         CHECK_EQUAL(type, token->type);
-        CHECK_EQUAL(literal, token->literal);
+        CHECK_EQUAL(literal, *(token->literal.get()));
     }
 };
 
@@ -52,7 +52,7 @@ TEST(LexerTest, nextTokenEOF)
     token = lexer->nextToken();
 
     CHECK_EQUAL(Token::ENDOFFILE, token->type);
-    CHECK(token->literal.empty());
+    CHECK(token->literal.get()->empty());
 }
 
 TEST(LexerTest, nextTokenIllegal)
