@@ -9,6 +9,7 @@
 #ifndef INTERPRETER_LEXER_H
 #define INTERPRETER_LEXER_H
 
+#include <memory>
 #include "Token.h"
 
 class Lexer
@@ -16,7 +17,7 @@ class Lexer
 public:
     explicit Lexer(const char*);
     virtual ~Lexer();
-    Token* nextToken();
+    std::unique_ptr<Token> nextToken();
 
 private:
     const char *input;
@@ -29,11 +30,11 @@ private:
     void skipWhiteSpace();
     static bool isLetter(char c);
     static bool isDigit(char c);
-    Token *readSingleCharToken(Token::TokenType type);
-    Token *readTwoCharToken(Token::TokenType type);
-    std::string *createString(int start, int end);
-    std::string *readIdentifier();
-    std::string *readNumber();
+    std::unique_ptr<Token> readSingleCharToken(Token::TokenType type);
+    std::unique_ptr<Token> readTwoCharToken(Token::TokenType type);
+    std::string createString(int start, int end);
+    std::string readIdentifier();
+    std::string readNumber();
 
 };
 
