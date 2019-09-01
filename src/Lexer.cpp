@@ -16,16 +16,18 @@ Lexer::Lexer(const char *input) : input {input}
     readChar();
 }
 
-Token* Lexer::nextToken()
+Lexer::~Lexer() = default;
+
+std::unique_ptr<Token> Lexer::nextToken()
 {
-    Token *token;
+    std::unique_ptr<Token> token;
 
     skipWhiteSpace();
 
     switch (currentChar)
     {
         case 0:
-            token = new Token(Token::ENDOFFILE, new std::string());
+            token = std::make_unique<Token>(Token::ENDOFFILE, std::string());
             readChar();
             break;
 
@@ -102,11 +104,11 @@ Token* Lexer::nextToken()
         default:
             if (isLetter(currentChar))
             {
-                token = new Token(readIdentifier());
+                token = std::make_unique<Token>(readIdentifier());
             }
             else if (isDigit(currentChar))
             {
-                token = new Token(readNumber());
+                token = std::make_unique<Token>(readNumber());
                 token->type = Token::INT;
             }
             else
@@ -156,49 +158,46 @@ void Lexer::skipWhiteSpace()
     }
 }
 
-Token *Lexer::readSingleCharToken(Token::TokenType type)
+std::unique_ptr<Token> Lexer::readSingleCharToken(Token::TokenType type)
 {
-    auto *token = new Token(type, createString(curPos, curPos));
+    auto token = std::make_unique<Token>(type, createString(curPos, curPos));
     readChar();
     return token;
 }
 
-Token *Lexer::readTwoCharToken(Token::TokenType type)
+std::unique_ptr<Token> Lexer::readTwoCharToken(Token::TokenType type)
 {
-    Token *token;
+    std::unique_ptr<Token> token;
     auto start = curPos;
     readChar();
-    token = new Token(type, createString(start, curPos));
+    token = std::make_unique<Token>(type, createString(start, curPos));
     readChar();
     return token;
 }
 
-std::string *Lexer::createString(int start, int end)
+std::string Lexer::createString(int start, int end)
 {
-    auto s = new std::string(input+start, end-start+1);
-    return s;
+    return std::string(input+start, end-start+1);
 }
 
-std::string *Lexer::readIdentifier()
+std::string Lexer::readIdentifier()
 {
     int start = curPos;
     while (isLetter(currentChar))
     {
         readChar();
     }
-    return new std::string(input+start, curPos-start);
+    return std::string(input+start, curPos-start);
 }
 
-std::string *Lexer::readNumber()
+std::string Lexer::readNumber()
 {
     int start = curPos;
     while (isDigit(currentChar))
     {
         readChar();
     }
-    return new std::string(input+start, curPos-start);
+    return std::string(input+start, curPos-start);
 }
 
-Lexer::~Lexer()
-= default;
 

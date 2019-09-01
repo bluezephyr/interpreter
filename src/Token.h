@@ -14,7 +14,8 @@
 class Token
 {
 public:
-    enum TokenType {
+    enum TokenType
+    {
         ILLEGAL,
         ENDOFFILE,
         IDENTIFIER,
@@ -44,16 +45,17 @@ public:
         RETURN
     };
 
-    explicit Token(std::string *literal);
-    Token(TokenType type, std::string *literal);
+    explicit Token(const std::string& literal);
+    Token(TokenType type, const std::string& literal);
     ~Token();
 
-    std::string getTypeString();
     enum TokenType type;
-    std::string *literal;
+    std::string literal;
+
+    //std::string getTypeString();
 
 private:
-    static TokenType lookUpType(std::string *string);
+    static TokenType lookUpType(const std::string& tokenString);
 };
 
 

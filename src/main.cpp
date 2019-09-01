@@ -18,14 +18,12 @@ int main()
         if (!line.empty())
         {
             auto lexer = Lexer(line.c_str());
-            Token *token = lexer.nextToken();
+            std::unique_ptr<Token> token = lexer.nextToken();
             while (token->type != Token::ENDOFFILE)
             {
-                std::cout << *(token->literal) << std::endl;
-                delete(token);
+                std::cout << token->literal << std::endl;
                 token = lexer.nextToken();
             }
-
         }
         std::cout << ">>> ";
     }

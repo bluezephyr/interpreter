@@ -8,52 +8,47 @@
 
 #include "Token.h"
 
-Token::Token(std::string *literal) : literal {literal}
+Token::Token(const std::string& literal) : literal {literal}
 {
     type = lookUpType(literal);
 }
 
-Token::Token(Token::TokenType type, std::string *literal) : type {type}, literal {literal}
-{}
+Token::Token(Token::TokenType type, const std::string& literal) : type {type}, literal {literal} {}
+Token::~Token() = default;
 
-Token::~Token()
+Token::TokenType Token::lookUpType(const std::string& tokenString)
 {
-    delete(literal);
-}
-
-Token::TokenType Token::lookUpType(std::string *string)
-{
-    if (*string == std::string("let"))
+    if (tokenString == std::string("let"))
     {
         return LET;
     }
 
-    if (*string == std::string("fn"))
+    if (tokenString == std::string("fn"))
     {
         return FUNCTION;
     }
 
-    if (*string == std::string("true"))
+    if (tokenString == std::string("true"))
     {
         return TRUE;
     }
 
-    if (*string == std::string("false"))
+    if (tokenString == std::string("false"))
     {
         return FALSE;
     }
 
-    if (*string == std::string("if"))
+    if (tokenString == std::string("if"))
     {
         return IF;
     }
 
-    if (*string == std::string("else"))
+    if (tokenString == std::string("else"))
     {
         return ELSE;
     }
 
-    if (*string == std::string("return"))
+    if (tokenString == std::string("return"))
     {
         return RETURN;
     }
