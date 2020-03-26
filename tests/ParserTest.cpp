@@ -53,7 +53,7 @@ TEST(ParserTest, parseLetStatements)
     auto parser = Parser(lexer);
     auto program = parser.parseProgram();
     CHECK_FALSE(program.get()->statements.empty());
-    CHECK(program.get()->statements.size() == 3)
+    CHECK(program.get()->statements.size() == 3);
 
     int i=0;
     for (auto const& statement : program->statements)
