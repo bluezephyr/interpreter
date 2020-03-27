@@ -1,7 +1,10 @@
 # Monkey Language Interpreter
+[![Build Status](https://travis-ci.org/bluezephyr/interpreter.svg?branch=master)](https://travis-ci.org/bluezephyr/interpreter)
+
 This repository contains an interpreter for the Monkey language written in C++. The work is based on
 the book *"Writing An Interpreter In Go"* by Thorsten Ball (https://interpreterbook.com/) but with the
-implementation done in C++ instead of Go. For more details regarding the Monkey Language, see [MonkeyLang](https://monkeylang.org/).
+implementation done in C++ instead of Go. For more details regarding the Monkey Language, see
+[MonkeyLang](https://monkeylang.org/).
 
 **Note!** The current status of the implementation is very rudimentary; only a first version of a
 lexical analyser and a simple REPL have been implemented so far.

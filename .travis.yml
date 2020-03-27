@@ -1,0 +1,20 @@
+dist: bionic
+language: c
+
+install:
+  - pip install --user cmake
+
+before_script:
+  - git clone https://github.com/cpputest/cpputest.git ~/cpputest
+  - cd ~/cpputest/cpputest_build
+  - cmake ..
+  - make all -j
+  - cd ${TRAVIS_BUILD_DIR}
+  - mkdir build
+  - cd build
+
+script:
+  - cmake -DCOMPILE_TESTS=ON -DCPPUTEST_HOME=~/cpputest ..
+  - make all -j
+  - make test
+
