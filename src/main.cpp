@@ -11,6 +11,7 @@
 int main()
 {
     std::cout << "Monkey Programming Language Interpreter!" << std::endl;
+    std::cout << "See https://monkeylang.org/ for more information" << std::endl;
     std::cout << "Type in your commands (exit with CRTL-D)" << std::endl;
     std::cout << ">>> ";
     for (std::string line; std::getline(std::cin, line);)
@@ -21,7 +22,7 @@ int main()
             std::unique_ptr<Token> token = lexer.nextToken();
             while (token->type != Token::ENDOFFILE)
             {
-                std::cout << token->literal << std::endl;
+                std::cout << *(token->literal) << std::endl;
                 token = lexer.nextToken();
             }
         }
