@@ -10,6 +10,7 @@
 #include "Parser.h"
 #include "ast.h"
 #include "CppUTest/TestHarness.h"
+#include "CppUTest/CommandLineTestRunner.h"
 
 TEST_GROUP(ParserTest)
 {
@@ -61,4 +62,9 @@ TEST(ParserTest, parseLetStatements)
         checkLetStatement(statement, identifiers[i]);
         ++i;
     }
+}
+
+int main(int ac, char** av)
+{
+    return CommandLineTestRunner::RunAllTests(ac, av);
 }

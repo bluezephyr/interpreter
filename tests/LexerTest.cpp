@@ -9,6 +9,7 @@
 #include <Lexer.h>
 #include <Token.h>
 #include "CppUTest/TestHarness.h"
+#include "CppUTest/CommandLineTestRunner.h"
 
 TEST_GROUP(LexerTest)
 {
@@ -251,4 +252,9 @@ TEST(LexerTest, readTokenKeywordReturn)
 {
     lexer = new Lexer("return");
     assertNextToken(Token::RETURN, std::string("return"));
+}
+
+int main(int ac, char** av)
+{
+    return CommandLineTestRunner::RunAllTests(ac, av);
 }

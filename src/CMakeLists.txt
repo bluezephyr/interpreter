@@ -1,14 +1,15 @@
-add_library(interpreterlib
+add_library(lexer
     Lexer.h
     Lexer.cpp
     Token.h
     Token.cpp
     ast.h
-    ast.cpp
+    ast.cpp)
+
+add_library(parser
     Parser.h
     Parser.cpp )
 
-add_executable(interpreter
-    main.cpp )
-
-target_link_libraries(interpreter interpreterlib)
+# The interpreter
+add_executable(interpreter main.cpp)
+target_link_libraries(interpreter lexer parser)
