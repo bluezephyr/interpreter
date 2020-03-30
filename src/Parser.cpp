@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2019 Blue Zephyr
+ * Copyright (c) 2019-2020 Blue Zephyr
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
  *
  */
 
+#include "Exceptions.h"
 #include "Parser.h"
 
 Parser::Parser(Lexer &lexer) : lexer(lexer)
@@ -14,10 +15,9 @@ Parser::Parser(Lexer &lexer) : lexer(lexer)
     peekToken = lexer.nextToken();
 }
 
-void Parser::nextToken()
+bool Parser::currentTokenIs(const Token::TokenType &type) const
 {
-    curToken = std::move(peekToken);
-    peekToken = lexer.nextToken();
+    return curToken->type == type;
 }
 
 bool Parser::peekTokenIs(const Token::TokenType &type) const
@@ -25,14 +25,26 @@ bool Parser::peekTokenIs(const Token::TokenType &type) const
     return peekToken->type == type;
 }
 
-bool Parser::expectPeek(Token::TokenType type)
+void Parser::nextToken()
+{
+    curToken = std::move(peekToken);
+    peekToken = lexer.nextToken();
+}
+
+void Parser::nextTokenIfType(Token::TokenType type)
 {
     if (peekTokenIs(type))
     {
         nextToken();
-        return true;
     }
-    return false;
+    else
+    {
+        std::string message("Expected " + Token::getTypeString(type) + " token. Got " +
+                                    Token::getTypeString(peekToken->type) + " token (" +
+                                    *(peekToken->literal) + ")");
+        errors.emplace_back(message);
+        throw(WrongTokenException());
+    }
 }
 
 std::unique_ptr<Program> Parser::parseProgram()
@@ -40,14 +52,22 @@ std::unique_ptr<Program> Parser::parseProgram()
     std::unique_ptr<Program> program = std::make_unique<Program>();
 
     // ... Parse the program ...
-    while (curToken->type != Token::ENDOFFILE)
+    while (!currentTokenIs(Token::ENDOFFILE))
     {
-        auto statement = parseStatement();
-        if (statement != nullptr)
+        try
         {
-            program->addStatement(std::move(statement));
+            program->addStatement(parseStatement());
+
+            // Consume semicolon
+            if (curToken->type == Token::SEMICOLON)
+            {
+                nextToken();
+            }
         }
-        nextToken();
+        catch (InvalidStatementException&)
+        {
+            nextToken();
+        }
     }
 
     return program;
@@ -63,28 +83,55 @@ std::unique_ptr<Statement> Parser::parseStatement()
             statement = parseLetStatement();
             break;
 
-        default:
-            statement = nullptr;
+        case Token::RETURN:
+            statement = parseReturnStatement();
             break;
+
+        default:
+            throw InvalidStatementException();
     }
     return statement;
 }
 
 std::unique_ptr<Statement> Parser::parseLetStatement()
 {
-    auto letStatement = std::make_unique<LetStatement>(std::move(curToken));
-    if (!expectPeek(Token::IDENTIFIER))
+    auto statement = std::make_unique<LetStatement>(std::move(curToken));
+
+    try
     {
-        return nullptr;
+        nextTokenIfType(Token::IDENTIFIER);
+        statement->identifier = std::make_unique<Identifier>(std::move(curToken));
+        nextTokenIfType(Token::ASSIGN);
+    }
+    catch (WrongTokenException&)
+    {
+        // TODO: Consume the rest of the statement - for now, just get next token and
+        //       let the while loop below handle it.
+        nextToken();
     }
 
-    letStatement->identifier = std::make_unique<Identifier>(std::move(curToken));
-
-    if (!expectPeek(Token::ASSIGN))
+    // TODO: Implement expression parsing.
+    //       For now consume until the semicolon.
+    while ((curToken->type != Token::SEMICOLON) && (curToken->type != Token::ENDOFFILE))
     {
-        return nullptr;
+        nextToken();
     }
 
-    return letStatement;
+    return statement;
+}
+
+std::unique_ptr<Statement> Parser::parseReturnStatement()
+{
+    auto statement = std::make_unique<ReturnStatement>(std::move(curToken));
+    nextToken();
+
+    // TODO: Implement expression parsing.
+    //       For now consume until the semicolon.
+    while ((curToken->type != Token::SEMICOLON) && (curToken->type != Token::ENDOFFILE))
+    {
+        nextToken();
+    }
+
+    return statement;
 }
 

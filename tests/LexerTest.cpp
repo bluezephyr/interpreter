@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Blue Zephyr
+ * Copyright (c) 2019-2020 Blue Zephyr
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -54,6 +54,16 @@ TEST(LexerTest, nextTokenEOF)
 
     CHECK_EQUAL(Token::ENDOFFILE, token->type);
     CHECK(token->literal.get()->empty());
+}
+
+// TODO:
+// Make sure that the nextToken method does not proceed beyond EOF.
+// Repeated call to the method after a first EOF will return nullptr.
+TEST(LexerTest, noTokensAfterEOF)
+{
+    lexer = new Lexer("");
+    token = lexer->nextToken();
+    token = lexer->nextToken();
 }
 
 TEST(LexerTest, nextTokenIllegal)

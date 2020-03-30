@@ -7,10 +7,11 @@ add_library(lexer
     Lexer.cpp)
 
 add_library(parser
-    Parser.h
-    Parser.cpp
     ast.h
-    ast.cpp)
+    ast.cpp
+    Exceptions.h
+    Parser.h
+    Parser.cpp)
 
 # The interpreter
 add_executable(interpreter main.cpp)

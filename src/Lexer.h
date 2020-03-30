@@ -19,6 +19,7 @@ public:
     virtual ~Lexer();
     std::unique_ptr<Token> nextToken();
 
+    bool eofFound;
 private:
     const char *input;
     int curPos;
@@ -35,7 +36,6 @@ private:
     std::string createString(int start, int end);
     std::string readIdentifier();
     std::string readNumber();
-
 };
 
 #endif //INTERPRETER_LEXER_H

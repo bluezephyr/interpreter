@@ -52,7 +52,7 @@ public:
 
     enum TokenType type;
     std::shared_ptr<std::string> literal;
-    std::string getTypeString();
+    static std::string getTypeString(Token::TokenType type);
 
 private:
     static TokenType lookUpType(const std::string& tokenString);

@@ -16,13 +16,18 @@ Identifier::Identifier(std::unique_ptr<Token> token) : token(std::move(token))
 
 // Statements
 LetStatement::LetStatement() : token(nullptr), identifier(nullptr), expression(nullptr) {}
-
 LetStatement::LetStatement(std::unique_ptr<Token> token) :
         token(std::move(token)),
         identifier(nullptr),
         expression(nullptr) {}
-
 LetStatement::~LetStatement() = default;
+
+ReturnStatement::ReturnStatement() : token(nullptr), expression(nullptr) {}
+ReturnStatement::ReturnStatement(std::unique_ptr<Token> token) :
+        token(std::move(token)),
+        expression(nullptr) {}
+ReturnStatement::~ReturnStatement() = default;
+
 
 // Expressions
 Expression::~Expression() = default;

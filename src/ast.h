@@ -9,9 +9,9 @@
 #ifndef INTERPRETER_AST_H
 #define INTERPRETER_AST_H
 
-#include <list>
 #include <memory>
 #include <string>
+#include <vector>
 #include "Token.h"
 
 class Node
@@ -53,6 +53,17 @@ private:
     std::unique_ptr<Expression> expression;
 };
 
+class ReturnStatement : public Statement
+{
+public:
+    ReturnStatement();
+    explicit ReturnStatement(std::unique_ptr<Token> token);
+    ~ReturnStatement() override;
+    std::shared_ptr<Token> token;
+private:
+    std::unique_ptr<Expression> expression;
+};
+
 // Program
 class Program
 {
@@ -60,7 +71,7 @@ public:
     Program() = default;
     ~Program();
     void addStatement(std::unique_ptr<Statement> statement);
-    std::list<std::shared_ptr<Statement>> statements;
+    std::vector<std::shared_ptr<Statement>> statements;
 };
 
 #endif //INTERPRETER_AST_H

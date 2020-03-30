@@ -62,7 +62,7 @@ Token::TokenType Token::lookUpType(const std::string& tokenString)
     return IDENTIFIER;
 }
 
-std::string Token::getTypeString()
+std::string Token::getTypeString(Token::TokenType type)
 {
     switch (type)
     {

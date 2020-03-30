@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Blue Zephyr
+ * Copyright (c) 2019-2020 Blue Zephyr
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -13,6 +13,7 @@ Lexer::Lexer(const char *input) : input {input}
     curPos = 0;
     readPos = 0;
     currentChar = 0;
+    eofFound = false;
     readChar();
 }
 
@@ -22,6 +23,11 @@ std::unique_ptr<Token> Lexer::nextToken()
 {
     std::unique_ptr<Token> token;
 
+    if (eofFound)
+    {
+        return nullptr;
+    }
+
     skipWhiteSpace();
 
     switch (currentChar)
@@ -29,6 +35,7 @@ std::unique_ptr<Token> Lexer::nextToken()
         case 0:
             token = std::make_unique<Token>(Token::ENDOFFILE, std::string());
             readChar();
+            eofFound = true;
             break;
 
         case '=':

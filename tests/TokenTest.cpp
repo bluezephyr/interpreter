@@ -29,33 +29,33 @@ TEST(TokenTest, lookUpToken)
 
 TEST(TokenTest, getTypeString)
 {
-    CHECK_EQUAL("LET", Token("let").getTypeString());
-    CHECK_EQUAL("FN", Token("fn").getTypeString());
-    CHECK_EQUAL("TRUE", Token("true").getTypeString());
-    CHECK_EQUAL("FALSE", Token("false").getTypeString());
-    CHECK_EQUAL("IF", Token("if").getTypeString());
-    CHECK_EQUAL("ELSE", Token("else").getTypeString());
-    CHECK_EQUAL("RETURN", Token("return").getTypeString());
-    CHECK_EQUAL("ILLEGAL", Token(Token::ILLEGAL, "").getTypeString());
-    CHECK_EQUAL("EOF", Token(Token::ENDOFFILE, "").getTypeString());
-    CHECK_EQUAL("IDENTIFIER", Token(Token::IDENTIFIER, "").getTypeString());
-    CHECK_EQUAL("INT", Token(Token::INT, "").getTypeString());
-    CHECK_EQUAL("ASSIGN", Token(Token::ASSIGN, "").getTypeString());
-    CHECK_EQUAL("PLUS", Token(Token::PLUS, "").getTypeString());
-    CHECK_EQUAL("MINUS", Token(Token::MINUS, "").getTypeString());
-    CHECK_EQUAL("BANG", Token(Token::BANG, "").getTypeString());
-    CHECK_EQUAL("ASTERISK", Token(Token::ASTERISK, "").getTypeString());
-    CHECK_EQUAL("SLASH", Token(Token::SLASH, "").getTypeString());
-    CHECK_EQUAL("LT", Token(Token::LT, "").getTypeString());
-    CHECK_EQUAL("GT", Token(Token::GT, "").getTypeString());
-    CHECK_EQUAL("EQ", Token(Token::EQ, "").getTypeString());
-    CHECK_EQUAL("NEQ", Token(Token::NEQ, "").getTypeString());
-    CHECK_EQUAL("COMMA", Token(Token::COMMA, "").getTypeString());
-    CHECK_EQUAL("SEMICOLON", Token(Token::SEMICOLON, "").getTypeString());
-    CHECK_EQUAL("LPAREN", Token(Token::LPAREN, "").getTypeString());
-    CHECK_EQUAL("RPAREN", Token(Token::RPAREN, "").getTypeString());
-    CHECK_EQUAL("LBRACE", Token(Token::LBRACE, "").getTypeString());
-    CHECK_EQUAL("RBRACE", Token(Token::RBRACE, "").getTypeString());
+    CHECK_EQUAL("LET", Token::getTypeString(Token::LET));
+    CHECK_EQUAL("FN", Token::getTypeString(Token::FUNCTION));
+    CHECK_EQUAL("TRUE", Token::getTypeString(Token::TRUE));
+    CHECK_EQUAL("FALSE", Token::getTypeString(Token::FALSE));
+    CHECK_EQUAL("IF", Token::getTypeString(Token::IF));
+    CHECK_EQUAL("ELSE", Token::getTypeString(Token::ELSE));
+    CHECK_EQUAL("RETURN", Token::getTypeString(Token::RETURN));
+    CHECK_EQUAL("ILLEGAL", Token::getTypeString(Token::ILLEGAL));
+    CHECK_EQUAL("EOF", Token::getTypeString(Token::ENDOFFILE));
+    CHECK_EQUAL("IDENTIFIER", Token::getTypeString(Token::IDENTIFIER));
+    CHECK_EQUAL("INT", Token::getTypeString(Token::INT));
+    CHECK_EQUAL("ASSIGN", Token::getTypeString(Token::ASSIGN));
+    CHECK_EQUAL("PLUS", Token::getTypeString(Token::PLUS));
+    CHECK_EQUAL("MINUS", Token::getTypeString(Token::MINUS));
+    CHECK_EQUAL("BANG", Token::getTypeString(Token::BANG));
+    CHECK_EQUAL("ASTERISK", Token::getTypeString(Token::ASTERISK));
+    CHECK_EQUAL("SLASH", Token::getTypeString(Token::SLASH));
+    CHECK_EQUAL("LT", Token::getTypeString(Token::LT));
+    CHECK_EQUAL("GT", Token::getTypeString(Token::GT));
+    CHECK_EQUAL("EQ", Token::getTypeString(Token::EQ));
+    CHECK_EQUAL("NEQ", Token::getTypeString(Token::NEQ));
+    CHECK_EQUAL("COMMA", Token::getTypeString(Token::COMMA));
+    CHECK_EQUAL("SEMICOLON", Token::getTypeString(Token::SEMICOLON));
+    CHECK_EQUAL("LPAREN", Token::getTypeString(Token::LPAREN));
+    CHECK_EQUAL("RPAREN", Token::getTypeString(Token::RPAREN));
+    CHECK_EQUAL("LBRACE", Token::getTypeString(Token::LBRACE));
+    CHECK_EQUAL("RBRACE", Token::getTypeString(Token::RBRACE));
 }
 
 int main(int ac, char** av)

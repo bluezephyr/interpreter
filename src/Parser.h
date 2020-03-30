@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Blue Zephyr
+ * Copyright (c) 2019-2020 Blue Zephyr
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -10,25 +10,29 @@
 #define INTERPRETER_PARSER_H
 
 #include <memory>
-#include "Lexer.h"
 #include "ast.h"
+#include "Lexer.h"
 
 class Parser
 {
 public:
     explicit Parser(Lexer &lexer);
     std::unique_ptr<Program> parseProgram();
+    std::vector<std::string> errors;
 
 private:
-    Lexer lexer;
+    Lexer& lexer;
     std::unique_ptr<Token> curToken;
     std::unique_ptr<Token> peekToken;
+
     void nextToken();
+    bool currentTokenIs(const Token::TokenType &type) const;
     bool peekTokenIs(const Token::TokenType &type) const;
-    bool expectPeek(Token::TokenType type);
+    void nextTokenIfType(Token::TokenType type);
     std::unique_ptr<Statement> parseStatement();
     std::unique_ptr<Statement> parseLetStatement();
 
+    std::unique_ptr<Statement> parseReturnStatement();
 };
 
 #endif //INTERPRETER_PARSER_H
