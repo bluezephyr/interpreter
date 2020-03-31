@@ -13,11 +13,15 @@ message(STATUS "CppUTest dir: ${CppUTest_DIR}")
 
 include_directories(../src)
 
+add_executable(token_test TokenTest.cpp)
+target_link_libraries(token_test token CppUTest CppUTestExt)
+
 add_executable(lexer_test LexerTest.cpp)
-target_link_libraries(lexer_test lexer CppUTest CppUTestExt)
+target_link_libraries(lexer_test token lexer CppUTest CppUTestExt)
 
 add_executable(parser_test ParserTest.cpp)
-target_link_libraries(parser_test lexer parser CppUTest CppUTestExt)
+target_link_libraries(parser_test token lexer parser CppUTest CppUTestExt)
 
+add_test(token token_test)
 add_test(lexer lexer_test)
 add_test(parser parser_test)
