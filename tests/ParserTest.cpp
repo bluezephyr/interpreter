@@ -87,6 +87,7 @@ TEST(ParserTest, letStatementErrorMissingAssignment)
     auto lexer = Lexer("let x 5;\n");
     auto parser = Parser(lexer);
     auto program = parser.parseProgram();
+    CHECK_TRUE(program.get()->statements.empty());
     CHECK_EQUAL(1, parser.errors.size());
     CHECK_EQUAL(message, parser.errors[0]);
 }
@@ -97,6 +98,7 @@ TEST(ParserTest, letStatementErrorMissingIdentifier)
     auto lexer = Lexer("let =10;\n");
     auto parser = Parser(lexer);
     auto program = parser.parseProgram();
+    CHECK_TRUE(program.get()->statements.empty());
     CHECK_EQUAL(1, parser.errors.size());
     CHECK_EQUAL(message, parser.errors[0]);
 }
@@ -107,6 +109,7 @@ TEST(ParserTest, letStatementErrorNonValidIdentifier)
     auto lexer = Lexer("let 6777;\n");
     auto parser = Parser(lexer);
     auto program = parser.parseProgram();
+    CHECK_TRUE(program.get()->statements.empty());
     CHECK_EQUAL(1, parser.errors.size());
     CHECK_EQUAL(message, parser.errors[0]);
 }

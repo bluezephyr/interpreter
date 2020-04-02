@@ -33,17 +33,17 @@ void Parser::nextToken()
 
 void Parser::nextTokenIfType(Token::TokenType type)
 {
-    if (peekTokenIs(type))
+    if (currentTokenIs(type))
     {
         nextToken();
     }
     else
     {
         std::string message("Expected " + Token::getTypeString(type) + " token. Got " +
-                                    Token::getTypeString(peekToken->type) + " token (" +
-                                    *(peekToken->literal) + ")");
+                                    Token::getTypeString(curToken->type) + " token (" +
+                                    *(curToken->literal) + ")");
         errors.emplace_back(message);
-        throw(WrongTokenException());
+        throw WrongTokenException();
     }
 }
 
@@ -52,22 +52,31 @@ std::unique_ptr<Program> Parser::parseProgram()
     std::unique_ptr<Program> program = std::make_unique<Program>();
 
     // ... Parse the program ...
-    while (!currentTokenIs(Token::ENDOFFILE))
+    try
     {
-        try
+        while (!currentTokenIs(Token::ENDOFFILE))
         {
-            program->addStatement(parseStatement());
-
-            // Consume semicolon
-            if (curToken->type == Token::SEMICOLON)
+            try
             {
+                program->addStatement(parseStatement());
+
+                // Consume semicolon if present
+                if (curToken->type == Token::SEMICOLON)
+                {
+                    nextToken();
+                }
+            }
+            catch (ParserException &)
+            {
+                // TODO: Consume the rest of the statement - for now, just get next token and
+                //       let the while loop below handle it.
                 nextToken();
             }
         }
-        catch (InvalidStatementException&)
-        {
-            nextToken();
-        }
+    }
+    catch (EndOfFileException&)
+    {
+        errors.emplace_back("Unexpected EOF");
     }
 
     return program;
@@ -96,27 +105,11 @@ std::unique_ptr<Statement> Parser::parseStatement()
 std::unique_ptr<Statement> Parser::parseLetStatement()
 {
     auto statement = std::make_unique<LetStatement>(std::move(curToken));
+    nextToken();
 
-    try
-    {
-        nextTokenIfType(Token::IDENTIFIER);
-        statement->identifier = std::make_unique<Identifier>(std::move(curToken));
-        nextTokenIfType(Token::ASSIGN);
-    }
-    catch (WrongTokenException&)
-    {
-        // TODO: Consume the rest of the statement - for now, just get next token and
-        //       let the while loop below handle it.
-        nextToken();
-    }
-
-    // TODO: Implement expression parsing.
-    //       For now consume until the semicolon.
-    while ((curToken->type != Token::SEMICOLON) && (curToken->type != Token::ENDOFFILE))
-    {
-        nextToken();
-    }
-
+    statement->identifier = parseIdentifier();
+    nextTokenIfType(Token::ASSIGN);
+    parseExpression();
     return statement;
 }
 
@@ -124,14 +117,36 @@ std::unique_ptr<Statement> Parser::parseReturnStatement()
 {
     auto statement = std::make_unique<ReturnStatement>(std::move(curToken));
     nextToken();
+    parseExpression();
+    return statement;
+}
 
+std::shared_ptr<Identifier> Parser::parseIdentifier()
+{
+    if(currentTokenIs(Token::IDENTIFIER))
+    {
+        auto identifier = std::make_unique<Identifier>(std::move(curToken));
+        nextToken();
+        return identifier;
+    }
+    else
+    {
+        std::string message("Expected " + Token::getTypeString(Token::IDENTIFIER) + " token. Got " +
+                            Token::getTypeString(curToken->type) + " token (" +
+                            *(curToken->literal) + ")");
+        errors.emplace_back(message);
+        throw WrongTokenException();
+    }
+}
+
+void Parser::parseExpression()
+{
     // TODO: Implement expression parsing.
     //       For now consume until the semicolon.
-    while ((curToken->type != Token::SEMICOLON) && (curToken->type != Token::ENDOFFILE))
+    while (curToken->type != Token::SEMICOLON)
     {
         nextToken();
     }
-
-    return statement;
 }
+
 

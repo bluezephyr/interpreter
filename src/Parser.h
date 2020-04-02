@@ -25,14 +25,16 @@ private:
     std::unique_ptr<Token> curToken;
     std::unique_ptr<Token> peekToken;
 
-    void nextToken();
     bool currentTokenIs(const Token::TokenType &type) const;
     bool peekTokenIs(const Token::TokenType &type) const;
+    void nextToken();
     void nextTokenIfType(Token::TokenType type);
     std::unique_ptr<Statement> parseStatement();
     std::unique_ptr<Statement> parseLetStatement();
-
     std::unique_ptr<Statement> parseReturnStatement();
+    std::shared_ptr<Identifier> parseIdentifier();
+
+    void parseExpression();
 };
 
 #endif //INTERPRETER_PARSER_H

@@ -11,7 +11,10 @@
 
 #include <exception>
 
-class WrongTokenException : public std::exception {};
-class InvalidStatementException : public std::exception {};
+class ParserException : public std::exception {};
+class WrongTokenException : public ParserException {};
+class InvalidStatementException : public ParserException {};
+class EndOfFileException : public ParserException {};
+
 
 #endif //INTERPRETER_EXCEPTIONS_H

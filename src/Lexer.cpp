@@ -7,13 +7,13 @@
  */
 
 #include "Lexer.h"
+#include "Exceptions.h"
 
 Lexer::Lexer(const char *input) : input {input}
 {
     curPos = 0;
     readPos = 0;
     currentChar = 0;
-    eofFound = false;
     readChar();
 }
 
@@ -22,12 +22,6 @@ Lexer::~Lexer() = default;
 std::unique_ptr<Token> Lexer::nextToken()
 {
     std::unique_ptr<Token> token;
-
-    if (eofFound)
-    {
-        return nullptr;
-    }
-
     skipWhiteSpace();
 
     switch (currentChar)
@@ -35,7 +29,6 @@ std::unique_ptr<Token> Lexer::nextToken()
         case 0:
             token = std::make_unique<Token>(Token::ENDOFFILE, std::string());
             readChar();
-            eofFound = true;
             break;
 
         case '=':

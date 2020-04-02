@@ -19,7 +19,6 @@ public:
     virtual ~Lexer();
     std::unique_ptr<Token> nextToken();
 
-    bool eofFound;
 private:
     const char *input;
     int curPos;
