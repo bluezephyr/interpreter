@@ -10,7 +10,7 @@
 #define INTERPRETER_PARSER_H
 
 #include <memory>
-#include "ast.h"
+#include "Ast.h"
 #include "Lexer.h"
 
 class Parser

@@ -7,7 +7,6 @@
  */
 
 #include "Lexer.h"
-#include "Exceptions.h"
 
 Lexer::Lexer(const char *input) : input {input}
 {

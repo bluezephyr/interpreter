@@ -8,14 +8,21 @@
 
 #include <vector>
 #include "Parser.h"
-#include "ast.h"
+#include "Ast.h"
 #include "CppUTest/TestHarness.h"
 #include "CppUTest/CommandLineTestRunner.h"
 
 TEST_GROUP(ParserTest)
 {
-    void setup() override {}
-    void teardown() override {}
+    void setup() override
+    {
+        lexer = nullptr;
+    }
+
+    void teardown() override
+    {
+        delete (lexer);
+    }
 
     void checkLetStatement(const std::shared_ptr<Statement>& statement, const std::string& name) const
     {
@@ -34,28 +41,42 @@ TEST_GROUP(ParserTest)
         CHECK_EQUAL(Token::RETURN, (returnStatement->token->type));
         CHECK_EQUAL("return", *returnStatement->token->literal);
     }
+
+    Parser createParser(const char* input)
+    {
+        lexer = new Lexer(input);
+        auto parser = Parser(*lexer);
+        return parser;
+    }
+
+    std::unique_ptr<Program> parse(const std::string& input) const
+    {
+        auto lexer = Lexer(input.c_str());
+        auto parser = Parser(lexer);
+        auto program = parser.parseProgram();
+        return program;
+    }
+
+    Lexer *lexer;
 };
 
 TEST(ParserTest, parseEmptyProgram)
 {
-    auto lexer = Lexer("");
-    auto parser = Parser(lexer);
+    auto parser = createParser("");
     auto program = parser.parseProgram();
     CHECK_TRUE(program.get()->statements.empty());
 }
 
 TEST(ParserTest, parseEmptyStatmentProgram)
 {
-    auto lexer = Lexer(";");
-    auto parser = Parser(lexer);
+    auto parser = createParser(";");
     auto program = parser.parseProgram();
     CHECK_TRUE(program.get()->statements.empty());
 }
 
 TEST(ParserTest, parseSingleLetStatement)
 {
-    auto lexer = Lexer("let x=5;");
-    auto parser = Parser(lexer);
+    auto parser = createParser("let x=5;");
     auto program = parser.parseProgram();
 
     CHECK_FALSE(program.get()->statements.empty());
@@ -64,11 +85,10 @@ TEST(ParserTest, parseSingleLetStatement)
 
 TEST(ParserTest, parseLetStatements)
 {
-    auto lexer = Lexer("let x=5;\n"
+    std::vector<std::string> identifiers = {"x", "y", "foobar"};
+    auto parser = createParser("let x=5;\n"
                        "let y=10;\n"
                        "let foobar = 423432\n");
-    std::vector<std::string> identifiers = {"x", "y", "foobar"};
-    auto parser = Parser(lexer);
     auto program = parser.parseProgram();
     CHECK_FALSE(program.get()->statements.empty());
     CHECK_EQUAL(3, program.get()->statements.size());
@@ -84,8 +104,7 @@ TEST(ParserTest, parseLetStatements)
 TEST(ParserTest, letStatementErrorMissingAssignment)
 {
     std::string message("Expected ASSIGN token. Got INT token (5)");
-    auto lexer = Lexer("let x 5;\n");
-    auto parser = Parser(lexer);
+    auto parser = createParser("let x 5;\n");
     auto program = parser.parseProgram();
     CHECK_TRUE(program.get()->statements.empty());
     CHECK_EQUAL(1, parser.errors.size());
@@ -95,8 +114,7 @@ TEST(ParserTest, letStatementErrorMissingAssignment)
 TEST(ParserTest, letStatementErrorMissingIdentifier)
 {
     std::string message("Expected IDENTIFIER token. Got ASSIGN token (=)");
-    auto lexer = Lexer("let =10;\n");
-    auto parser = Parser(lexer);
+    auto parser = createParser("let =10;\n");
     auto program = parser.parseProgram();
     CHECK_TRUE(program.get()->statements.empty());
     CHECK_EQUAL(1, parser.errors.size());
@@ -106,8 +124,7 @@ TEST(ParserTest, letStatementErrorMissingIdentifier)
 TEST(ParserTest, letStatementErrorNonValidIdentifier)
 {
     std::string message("Expected IDENTIFIER token. Got INT token (6777)");
-    auto lexer = Lexer("let 6777;\n");
-    auto parser = Parser(lexer);
+    auto parser = createParser("let 6777;\n");
     auto program = parser.parseProgram();
     CHECK_TRUE(program.get()->statements.empty());
     CHECK_EQUAL(1, parser.errors.size());
@@ -116,20 +133,16 @@ TEST(ParserTest, letStatementErrorNonValidIdentifier)
 
 TEST(ParserTest, parseSingleReturnStatement)
 {
-    auto lexer = Lexer("return 5;");
-    auto parser = Parser(lexer);
-    auto program = parser.parseProgram();
-
+    auto program = parse("return 5;");
     CHECK_FALSE(program.get()->statements.empty());
     checkReturnStatement(program->statements.front());
 }
 
 TEST(ParserTest, parseReturnStatements)
 {
-    auto lexer = Lexer("return 5;\n"
-                       "return 10;\n"
-                       "return 423432\n");
-    auto parser = Parser(lexer);
+    auto parser = createParser("return 5;\n"
+                               "return 10;\n"
+                               "return 423432\n");
     auto program = parser.parseProgram();
     CHECK_FALSE(program.get()->statements.empty());
     CHECK_EQUAL(3, program.get()->statements.size());
@@ -138,6 +151,12 @@ TEST(ParserTest, parseReturnStatements)
     {
         checkReturnStatement(statement);
     }
+}
+
+TEST(ParserTest, parseIdentifierExpression)
+{
+    auto parser = createParser("foobar;");
+    auto program = parser.parseProgram();
 }
 
 int main(int ac, char** av)

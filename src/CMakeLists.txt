@@ -1,17 +1,24 @@
 add_library(token
     Token.h
     Token.cpp)
+target_include_directories(token PUBLIC ../src)
 
 add_library(lexer
     Lexer.h
     Lexer.cpp)
+target_include_directories(lexer PUBLIC ../src)
+
+add_library(ast
+    Ast.h
+    Ast.cpp)
+target_include_directories(ast PUBLIC ../src)
 
 add_library(parser
-    ast.h
-    ast.cpp
     Exceptions.h
     Parser.h
     Parser.cpp)
+target_include_directories(parser PUBLIC ../src)
+target_link_libraries(parser ast)
 
 # The interpreter
 add_executable(interpreter main.cpp)
