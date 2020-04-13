@@ -11,6 +11,7 @@
 
 Parser::Parser(Lexer &lexer) : lexer(lexer)
 {
+    prefixParseFunctionMap[Token::IDENTIFIER] = std::bind(&Parser::parseIdentifier, this);
     curToken = lexer.nextToken();
     peekToken = lexer.nextToken();
 }
@@ -47,9 +48,9 @@ void Parser::nextTokenIfType(Token::TokenType type)
     }
 }
 
-std::unique_ptr<Program> Parser::parseProgram()
+std::shared_ptr<Program> Parser::parseProgram()
 {
-    std::unique_ptr<Program> program = std::make_unique<Program>();
+    std::shared_ptr<Program> program = std::make_shared<Program>();
 
     // ... Parse the program ...
     try
@@ -59,19 +60,17 @@ std::unique_ptr<Program> Parser::parseProgram()
             try
             {
                 program->addStatement(parseStatement());
-
-                // Consume semicolon if present
-                if (curToken->type == Token::SEMICOLON)
-                {
-                    nextToken();
-                }
             }
             catch (ParserException &)
             {
                 // TODO: Consume the rest of the statement - for now, just get next token and
                 //       let the while loop below handle it.
-                nextToken();
+                while (curToken->type != Token::SEMICOLON)
+                {
+                    nextToken();
+                }
             }
+            consumeSemicolon();
         }
     }
     catch (EndOfFileException&)
@@ -82,9 +81,18 @@ std::unique_ptr<Program> Parser::parseProgram()
     return program;
 }
 
-std::unique_ptr<Statement> Parser::parseStatement()
+void Parser::consumeSemicolon()
 {
-    std::unique_ptr<Statement> statement;
+    // Consume semicolon if present
+    if (curToken->type == Token::SEMICOLON)
+    {
+        nextToken();
+    }
+}
+
+std::shared_ptr<Statement> Parser::parseStatement()
+{
+    std::shared_ptr<Statement> statement;
 
     switch (curToken->type)
     {
@@ -97,27 +105,35 @@ std::unique_ptr<Statement> Parser::parseStatement()
             break;
 
         default:
-            throw InvalidStatementException();
+            statement = parseExpressionStatement();
+            break;
     }
     return statement;
 }
 
-std::unique_ptr<Statement> Parser::parseLetStatement()
+std::shared_ptr<Statement> Parser::parseLetStatement()
 {
-    auto statement = std::make_unique<LetStatement>(std::move(curToken));
+    auto statement = std::make_shared<LetStatement>(std::move(curToken));
     nextToken();
 
     statement->identifier = parseIdentifier();
     nextTokenIfType(Token::ASSIGN);
-    parseExpression();
+    statement->expression = parseExpression(Precedence::LOWEST);
     return statement;
 }
 
-std::unique_ptr<Statement> Parser::parseReturnStatement()
+std::shared_ptr<Statement> Parser::parseReturnStatement()
 {
-    auto statement = std::make_unique<ReturnStatement>(std::move(curToken));
+    auto statement = std::make_shared<ReturnStatement>(std::move(curToken));
     nextToken();
-    parseExpression();
+    statement->expression = parseExpression(Precedence::LOWEST);
+    return statement;
+}
+
+std::shared_ptr<Statement> Parser::parseExpressionStatement()
+{
+    auto statement = std::make_shared<ExpressionStatement>();
+    statement->expression = parseExpression(Precedence::LOWEST);
     return statement;
 }
 
@@ -125,7 +141,7 @@ std::shared_ptr<Identifier> Parser::parseIdentifier()
 {
     if(currentTokenIs(Token::IDENTIFIER))
     {
-        auto identifier = std::make_unique<Identifier>(std::move(curToken));
+        auto identifier = std::make_shared<Identifier>(std::move(curToken));
         nextToken();
         return identifier;
     }
@@ -139,14 +155,27 @@ std::shared_ptr<Identifier> Parser::parseIdentifier()
     }
 }
 
-void Parser::parseExpression()
+std::shared_ptr<Expression> Parser::parseExpression(Precedence precedence)
 {
-    // TODO: Implement expression parsing.
-    //       For now consume until the semicolon.
-    while (curToken->type != Token::SEMICOLON)
+    std::shared_ptr<Expression> leftExpression = nullptr;
+
+    auto prefixParseFunction = getPrefixParseFunction(curToken->type);
+    if (prefixParseFunction != nullptr)
     {
+        leftExpression = prefixParseFunction();
+    }
+    else
+    {
+        // TODO: For now...
         nextToken();
     }
+
+    return leftExpression;
+}
+
+PrefixParseFunction Parser::getPrefixParseFunction(Token::TokenType type)
+{
+    return prefixParseFunctionMap[type];
 }
 
 

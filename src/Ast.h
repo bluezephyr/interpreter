@@ -21,7 +21,14 @@ public:
     virtual std::string string() = 0;
 };
 
-class Identifier : public Node
+class Expression : public Node
+{
+public:
+    ~Expression() override = default;
+    std::string string() override = 0;
+};
+
+class Identifier : public Expression
 {
 public:
     explicit Identifier(std::unique_ptr<Token> token);
@@ -30,13 +37,6 @@ public:
 
     std::shared_ptr<Token> token;
     std::shared_ptr<std::string> value;
-};
-
-class Expression : public Node
-{
-public:
-    ~Expression() override = default;
-    std::string string() override = 0;
 };
 
 // Statements
@@ -56,8 +56,7 @@ public:
     std::string string() override;
     std::shared_ptr<Token> token;
     std::shared_ptr<Identifier> identifier;
-private:
-    std::unique_ptr<Expression> expression;
+    std::shared_ptr<Expression> expression;
 };
 
 class ReturnStatement : public Statement
@@ -68,20 +67,16 @@ public:
     ~ReturnStatement() override = default;
     std::string string() override;
     std::shared_ptr<Token> token;
-private:
-    std::unique_ptr<Expression> expression;
+    std::shared_ptr<Expression> expression;
 };
 
 class ExpressionStatement : public Statement
 {
 public:
     ExpressionStatement();
-    explicit ExpressionStatement(std::unique_ptr<Token> token);
     ~ExpressionStatement() override = default;
     std::string string() override;
-    std::shared_ptr<Token> token;
-private:
-    std::unique_ptr<Expression> expression;
+    std::shared_ptr<Expression> expression;
 };
 
 // Program
@@ -90,7 +85,7 @@ class Program : public Node
 public:
     Program() = default;
     ~Program() override = default;
-    void addStatement(std::unique_ptr<Statement> statement);
+    void addStatement(std::shared_ptr<Statement> statement);
     std::string string() override;
     std::vector<std::shared_ptr<Statement>> statements;
 };

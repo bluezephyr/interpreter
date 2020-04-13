@@ -56,10 +56,7 @@ std::string ReturnStatement::string()
 }
 
 // Expressions
-ExpressionStatement::ExpressionStatement() : token(nullptr), expression(nullptr) {}
-ExpressionStatement::ExpressionStatement(std::unique_ptr<Token> token) :
-        token(std::move(token)),
-        expression(nullptr) {}
+ExpressionStatement::ExpressionStatement() : expression(nullptr) {}
 std::string ExpressionStatement::string()
 {
     std::string statement;
@@ -71,7 +68,7 @@ std::string ExpressionStatement::string()
 }
 
 // Program
-void Program::addStatement(std::unique_ptr<Statement> statement)
+void Program::addStatement(std::shared_ptr<Statement> statement)
 {
     statements.push_back(std::move(statement));
 }

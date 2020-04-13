@@ -10,31 +10,50 @@
 #define INTERPRETER_PARSER_H
 
 #include <memory>
+#include <functional>
 #include "Ast.h"
 #include "Lexer.h"
+
+enum class Precedence
+{
+    LOWEST,
+    EQUALS,
+    LESSGREATER,
+    SUM,
+    PRODUCT,
+    PREFIX,
+    CALL
+};
+
+class Parser;
+typedef std::function<std::shared_ptr<Expression>(void)> PrefixParseFunction;
 
 class Parser
 {
 public:
     explicit Parser(Lexer &lexer);
-    std::unique_ptr<Program> parseProgram();
+    std::shared_ptr<Program> parseProgram();
     std::vector<std::string> errors;
 
 private:
     Lexer& lexer;
     std::unique_ptr<Token> curToken;
     std::unique_ptr<Token> peekToken;
+    std::unordered_map<Token::TokenType, PrefixParseFunction> prefixParseFunctionMap;
 
     bool currentTokenIs(const Token::TokenType &type) const;
     bool peekTokenIs(const Token::TokenType &type) const;
     void nextToken();
     void nextTokenIfType(Token::TokenType type);
-    std::unique_ptr<Statement> parseStatement();
-    std::unique_ptr<Statement> parseLetStatement();
-    std::unique_ptr<Statement> parseReturnStatement();
+    std::shared_ptr<Statement> parseStatement();
+    std::shared_ptr<Statement> parseLetStatement();
+    std::shared_ptr<Statement> parseReturnStatement();
+    std::shared_ptr<Statement> parseExpressionStatement();
     std::shared_ptr<Identifier> parseIdentifier();
+    std::shared_ptr<Expression> parseExpression(Precedence precedence);
+    void consumeSemicolon();
 
-    void parseExpression();
+    PrefixParseFunction getPrefixParseFunction(Token::TokenType type);
 };
 
 #endif //INTERPRETER_PARSER_H

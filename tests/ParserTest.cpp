@@ -49,7 +49,7 @@ TEST_GROUP(ParserTest)
         return parser;
     }
 
-    std::unique_ptr<Program> parse(const std::string& input) const
+    std::shared_ptr<Program> parse(const std::string& input) const
     {
         auto lexer = Lexer(input.c_str());
         auto parser = Parser(lexer);
@@ -67,11 +67,14 @@ TEST(ParserTest, parseEmptyProgram)
     CHECK_TRUE(program.get()->statements.empty());
 }
 
-TEST(ParserTest, parseEmptyStatmentProgram)
+TEST(ParserTest, parseEmptyStatmentProgramOk)
 {
+    // Need to decide whether this is a valid program or not. For now, consider it
+    // to be ok.
     auto parser = createParser(";");
     auto program = parser.parseProgram();
-    CHECK_TRUE(program.get()->statements.empty());
+    CHECK_FALSE(program.get()->statements.empty());
+    CHECK_EQUAL(1, program.get()->statements.size());
 }
 
 TEST(ParserTest, parseSingleLetStatement)
@@ -157,6 +160,15 @@ TEST(ParserTest, parseIdentifierExpression)
 {
     auto parser = createParser("foobar;");
     auto program = parser.parseProgram();
+    CHECK_EQUAL(0, parser.errors.size());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    auto* statement = dynamic_cast<ExpressionStatement*>(program->statements.front().get());
+    CHECK(statement != nullptr);
+    CHECK(statement->expression != nullptr);
+    auto* identifier = dynamic_cast<Identifier*>(statement->expression.get());
+    CHECK(identifier != nullptr);
+    CHECK_EQUAL(Token::IDENTIFIER, (identifier->token->type));
+    CHECK_EQUAL("foobar", *identifier->value);
 }
 
 int main(int ac, char** av)

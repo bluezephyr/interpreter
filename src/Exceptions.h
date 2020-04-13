@@ -13,7 +13,6 @@
 
 class ParserException : public std::exception {};
 class WrongTokenException : public ParserException {};
-class InvalidStatementException : public ParserException {};
 class EndOfFileException : public ParserException {};
 
 
