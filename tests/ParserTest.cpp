@@ -42,6 +42,23 @@ TEST_GROUP(ParserTest)
         CHECK_EQUAL("return", *returnStatement->token->literal);
     }
 
+    void checkIntegerExpression(const std::shared_ptr<Expression>& expression, int64_t value) const
+    {
+        CHECK(expression != nullptr);
+        auto* integer = dynamic_cast<Integer*>(expression.get());
+        CHECK(integer != nullptr);
+        CHECK_EQUAL(value, integer->value);
+        CHECK_EQUAL(std::to_string(value), integer->string());
+    }
+
+    std::shared_ptr<Expression> getAndCheckExpressionStatement(const std::shared_ptr<Statement>& statement) const
+    {
+        auto* expressionStatement = dynamic_cast<ExpressionStatement*>(statement.get());
+        CHECK(expressionStatement != nullptr);
+        CHECK(expressionStatement->expression != nullptr);
+        return expressionStatement->expression;
+    }
+
     Parser createParser(const char* input)
     {
         lexer = new Lexer(input);
@@ -67,14 +84,13 @@ TEST(ParserTest, parseEmptyProgram)
     CHECK_TRUE(program.get()->statements.empty());
 }
 
-TEST(ParserTest, parseEmptyStatmentProgramOk)
+TEST(ParserTest, parseEmptyStatmentProgramNOK)
 {
-    // Need to decide whether this is a valid program or not. For now, consider it
-    // to be ok.
+    // Need to decide whether this is a valid program or not. For now, consider it to be not ok.
     auto parser = createParser(";");
     auto program = parser.parseProgram();
-    CHECK_FALSE(program.get()->statements.empty());
-    CHECK_EQUAL(1, program.get()->statements.size());
+    CHECK(program.get()->statements.empty());
+    CHECK_EQUAL(0, program.get()->statements.size());
 }
 
 TEST(ParserTest, parseSingleLetStatement)
@@ -162,10 +178,8 @@ TEST(ParserTest, parseIdentifierExpression)
     auto program = parser.parseProgram();
     CHECK_EQUAL(0, parser.errors.size());
     CHECK_EQUAL(1, program.get()->statements.size());
-    auto* statement = dynamic_cast<ExpressionStatement*>(program->statements.front().get());
-    CHECK(statement != nullptr);
-    CHECK(statement->expression != nullptr);
-    auto* identifier = dynamic_cast<Identifier*>(statement->expression.get());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    auto* identifier = dynamic_cast<Identifier*>(expression.get());
     CHECK(identifier != nullptr);
     CHECK_EQUAL(Token::IDENTIFIER, (identifier->token->type));
     CHECK_EQUAL("foobar", *identifier->value);
@@ -178,13 +192,36 @@ TEST(ParserTest, parseIntegerLiteralExpression)
     auto program = parser.parseProgram();
     CHECK_EQUAL(0, parser.errors.size());
     CHECK_EQUAL(1, program.get()->statements.size());
-    auto* statement = dynamic_cast<ExpressionStatement*>(program->statements.front().get());
-    CHECK(statement != nullptr);
-    CHECK(statement->expression != nullptr);
-    auto* integer = dynamic_cast<Integer*>(statement->expression.get());
-    CHECK(integer != nullptr);
-    CHECK_EQUAL(5, integer->value);
-    CHECK_EQUAL("5", integer->string());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    checkIntegerExpression(expression, 5);
+}
+
+TEST(ParserTest, parseBangPrefixExpression)
+{
+    auto parser = createParser("!5;");
+    auto program = parser.parseProgram();
+    CHECK_EQUAL(0, parser.errors.size());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    auto* prefix = dynamic_cast<PrefixExpression*>(expression.get());
+    CHECK(prefix != nullptr);
+    CHECK_EQUAL("!", prefix->op);
+    checkIntegerExpression(prefix->right, 5);
+    CHECK_EQUAL("(!5)", prefix->string());
+}
+
+TEST(ParserTest, parseMinusPrefixExpression)
+{
+    auto parser = createParser("-15");
+    auto program = parser.parseProgram();
+    CHECK_EQUAL(0, parser.errors.size());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    auto* prefix = dynamic_cast<PrefixExpression*>(expression.get());
+    CHECK(prefix != nullptr);
+    CHECK_EQUAL("-", prefix->op);
+    checkIntegerExpression(prefix->right, 15);
+    CHECK_EQUAL("(-15)", prefix->string());
 }
 
 int main(int ac, char** av)

@@ -13,6 +13,8 @@ Parser::Parser(Lexer &lexer) : lexer(lexer)
 {
     prefixParseFunctionMap[Token::IDENTIFIER] = std::bind(&Parser::parseIdentifier, this);
     prefixParseFunctionMap[Token::INT] = std::bind(&Parser::parseInteger, this);
+    prefixParseFunctionMap[Token::BANG] = std::bind(&Parser::parsePrefixExpression, this);
+    prefixParseFunctionMap[Token::MINUS] = std::bind(&Parser::parsePrefixExpression, this);
     curToken = lexer.nextToken();
     peekToken = lexer.nextToken();
 }
@@ -175,6 +177,15 @@ std::shared_ptr<Integer> Parser::parseInteger()
     }
 }
 
+std::shared_ptr<Expression> Parser::parsePrefixExpression()
+{
+    auto expression = std::make_shared<PrefixExpression>(std::move(curToken));
+    expression->op = std::string(*expression->token->literal);
+    nextToken();
+    expression->right = parseExpression(Precedence::PREFIX);
+    return expression;
+}
+
 std::shared_ptr<Expression> Parser::parseExpression(Precedence precedence)
 {
     std::shared_ptr<Expression> leftExpression = nullptr;
@@ -186,8 +197,9 @@ std::shared_ptr<Expression> Parser::parseExpression(Precedence precedence)
     }
     else
     {
-        // TODO: For now...
-        nextToken();
+        std::string message("No prefix parse function for " + Token::getTypeString(curToken->type) + " found");
+        errors.emplace_back(message);
+        throw PrefixParseError();
     }
 
     return leftExpression;
@@ -197,4 +209,5 @@ PrefixParseFunction Parser::getPrefixParseFunction(Token::TokenType type)
 {
     return prefixParseFunctionMap[type];
 }
+
 

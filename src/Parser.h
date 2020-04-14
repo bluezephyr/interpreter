@@ -51,6 +51,7 @@ private:
     std::shared_ptr<Statement> parseExpressionStatement();
     std::shared_ptr<Identifier> parseIdentifier();
     std::shared_ptr<Integer> parseInteger();
+    std::shared_ptr<Expression> parsePrefixExpression();
     std::shared_ptr<Expression> parseExpression(Precedence precedence);
     void consumeSemicolon();
 

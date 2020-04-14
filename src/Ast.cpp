@@ -30,6 +30,16 @@ std::string Integer::string()
     return std::to_string(value);
 }
 
+// PrefixExpression
+PrefixExpression::PrefixExpression(std::unique_ptr<Token> token) :
+        token(std::move(token)),
+        right{nullptr} {}
+
+std::string PrefixExpression::string()
+{
+    return std::string("(" + op + right->string() + ")");
+}
+
 // Statements
 LetStatement::LetStatement() : token(nullptr), identifier(nullptr), expression(nullptr) {}
 LetStatement::LetStatement(std::unique_ptr<Token> token) :

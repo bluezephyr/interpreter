@@ -50,6 +50,19 @@ public:
     int64_t value;
 };
 
+class PrefixExpression : public Expression
+{
+public:
+    explicit PrefixExpression(std::unique_ptr<Token> token);
+    ~PrefixExpression() override = default;
+    std::string string() override;
+
+    std::shared_ptr<Token> token;
+    std::string op;
+    std::shared_ptr<Expression> right;
+
+};
+
 // Statements
 class Statement : public Node
 {
