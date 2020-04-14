@@ -12,6 +12,7 @@
 Parser::Parser(Lexer &lexer) : lexer(lexer)
 {
     prefixParseFunctionMap[Token::IDENTIFIER] = std::bind(&Parser::parseIdentifier, this);
+    prefixParseFunctionMap[Token::INT] = std::bind(&Parser::parseInteger, this);
     curToken = lexer.nextToken();
     peekToken = lexer.nextToken();
 }
@@ -155,6 +156,25 @@ std::shared_ptr<Identifier> Parser::parseIdentifier()
     }
 }
 
+std::shared_ptr<Integer> Parser::parseInteger()
+{
+    if (currentTokenIs(Token::INT))
+    {
+        auto integer = std::make_shared<Integer>(std::move(curToken));
+        integer->value = std::stol(*integer->token->literal);
+        nextToken();
+        return integer;
+    }
+    else
+    {
+        std::string message("Expected " + Token::getTypeString(Token::INT) + " token. Got " +
+                            Token::getTypeString(curToken->type) + " token (" +
+                            *(curToken->literal) + ")");
+        errors.emplace_back(message);
+        throw WrongTokenException();
+    }
+}
+
 std::shared_ptr<Expression> Parser::parseExpression(Precedence precedence)
 {
     std::shared_ptr<Expression> leftExpression = nullptr;
@@ -177,5 +197,4 @@ PrefixParseFunction Parser::getPrefixParseFunction(Token::TokenType type)
 {
     return prefixParseFunctionMap[type];
 }
-
 

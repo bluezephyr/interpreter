@@ -19,6 +19,17 @@ std::string Identifier::string()
     return std::string(*value);
 }
 
+// Integer
+Integer::Integer(std::unique_ptr<Token> token) : token(std::move(token))
+{
+    value = 0;
+}
+
+std::string Integer::string()
+{
+    return std::to_string(value);
+}
+
 // Statements
 LetStatement::LetStatement() : token(nullptr), identifier(nullptr), expression(nullptr) {}
 LetStatement::LetStatement(std::unique_ptr<Token> token) :

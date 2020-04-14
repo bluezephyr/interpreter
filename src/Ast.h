@@ -39,6 +39,17 @@ public:
     std::shared_ptr<std::string> value;
 };
 
+class Integer : public Expression
+{
+public:
+    explicit Integer(std::unique_ptr<Token> token);
+    ~Integer() override = default;
+    std::string string() override;
+
+    std::shared_ptr<Token> token;
+    int64_t value;
+};
+
 // Statements
 class Statement : public Node
 {

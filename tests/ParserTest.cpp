@@ -169,6 +169,22 @@ TEST(ParserTest, parseIdentifierExpression)
     CHECK(identifier != nullptr);
     CHECK_EQUAL(Token::IDENTIFIER, (identifier->token->type));
     CHECK_EQUAL("foobar", *identifier->value);
+    CHECK_EQUAL("foobar", identifier->string());
+}
+
+TEST(ParserTest, parseIntegerLiteralExpression)
+{
+    auto parser = createParser("5;");
+    auto program = parser.parseProgram();
+    CHECK_EQUAL(0, parser.errors.size());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    auto* statement = dynamic_cast<ExpressionStatement*>(program->statements.front().get());
+    CHECK(statement != nullptr);
+    CHECK(statement->expression != nullptr);
+    auto* integer = dynamic_cast<Integer*>(statement->expression.get());
+    CHECK(integer != nullptr);
+    CHECK_EQUAL(5, integer->value);
+    CHECK_EQUAL("5", integer->string());
 }
 
 int main(int ac, char** av)
