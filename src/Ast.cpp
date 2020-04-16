@@ -40,6 +40,18 @@ std::string PrefixExpression::string()
     return std::string("(" + op + right->string() + ")");
 }
 
+// InfixExpression
+InfixExpression::InfixExpression(std::unique_ptr<Token> token) :
+        left{nullptr},
+        token(std::move(token)),
+        right{nullptr} {}
+
+std::string InfixExpression::string()
+{
+    return std::string("(" + left->string() + " " + op + " " + right->string() + ")");
+}
+
+
 // Statements
 LetStatement::LetStatement() : token(nullptr), identifier(nullptr), expression(nullptr) {}
 LetStatement::LetStatement(std::unique_ptr<Token> token) :

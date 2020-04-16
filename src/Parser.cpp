@@ -11,10 +11,26 @@
 
 Parser::Parser(Lexer &lexer) : lexer(lexer)
 {
-    prefixParseFunctionMap[Token::IDENTIFIER] = std::bind(&Parser::parseIdentifier, this);
-    prefixParseFunctionMap[Token::INT] = std::bind(&Parser::parseInteger, this);
-    prefixParseFunctionMap[Token::BANG] = std::bind(&Parser::parsePrefixExpression, this);
-    prefixParseFunctionMap[Token::MINUS] = std::bind(&Parser::parsePrefixExpression, this);
+    prefixParseFunctionMap[Token::IDENTIFIER] = &Parser::parseIdentifier;
+    prefixParseFunctionMap[Token::INT] = &Parser::parseInteger;
+    prefixParseFunctionMap[Token::BANG] = &Parser::parsePrefixExpression;
+    prefixParseFunctionMap[Token::MINUS] = &Parser::parsePrefixExpression;
+    infixParseFunctionMap[Token::PLUS] = &Parser::parseInfixExpression;
+    infixParseFunctionMap[Token::MINUS] = &Parser::parseInfixExpression;
+    infixParseFunctionMap[Token::ASTERISK] = &Parser::parseInfixExpression;
+    infixParseFunctionMap[Token::SLASH] = &Parser::parseInfixExpression;
+    infixParseFunctionMap[Token::GT] = &Parser::parseInfixExpression;
+    infixParseFunctionMap[Token::LT] = &Parser::parseInfixExpression;
+    infixParseFunctionMap[Token::EQ] = &Parser::parseInfixExpression;
+    infixParseFunctionMap[Token::NEQ] = &Parser::parseInfixExpression;
+    precedenceMap[Token::EQ] = Precedence::EQUALS;
+    precedenceMap[Token::NEQ] = Precedence::EQUALS;
+    precedenceMap[Token::LT] = Precedence::LESSGREATER;
+    precedenceMap[Token::GT] = Precedence::LESSGREATER;
+    precedenceMap[Token::PLUS] = Precedence::SUM;
+    precedenceMap[Token::MINUS] = Precedence::SUM;
+    precedenceMap[Token::SLASH] = Precedence::PRODUCT;
+    precedenceMap[Token::ASTERISK] = Precedence::PRODUCT;
     curToken = lexer.nextToken();
     peekToken = lexer.nextToken();
 }
@@ -51,6 +67,20 @@ void Parser::nextTokenIfType(Token::TokenType type)
     }
 }
 
+Precedence Parser::getPrecedence(Token::TokenType tokenType)
+{
+    auto precedence = precedenceMap.find(tokenType);
+
+    if (precedence != precedenceMap.end())
+    {
+        return precedence->second;
+    }
+    else
+    {
+        return Precedence::LOWEST;
+    }
+}
+
 std::shared_ptr<Program> Parser::parseProgram()
 {
     std::shared_ptr<Program> program = std::make_shared<Program>();
@@ -66,8 +96,7 @@ std::shared_ptr<Program> Parser::parseProgram()
             }
             catch (ParserException &)
             {
-                // TODO: Consume the rest of the statement - for now, just get next token and
-                //       let the while loop below handle it.
+                // Consume the rest of the statement and continue parsing after that
                 while (curToken->type != Token::SEMICOLON)
                 {
                     nextToken();
@@ -186,20 +215,27 @@ std::shared_ptr<Expression> Parser::parsePrefixExpression()
     return expression;
 }
 
+std::shared_ptr<Expression> Parser::parseInfixExpression(std::shared_ptr<Expression> left)
+{
+    auto expression = std::make_shared<InfixExpression>(std::move(curToken));
+    expression->left = std::move(left);
+    expression->op = std::string(*expression->token->literal);
+    nextToken();
+    expression->right = parseExpression(getPrecedence(expression->token->type));
+    return expression;
+}
+
 std::shared_ptr<Expression> Parser::parseExpression(Precedence precedence)
 {
     std::shared_ptr<Expression> leftExpression = nullptr;
 
     auto prefixParseFunction = getPrefixParseFunction(curToken->type);
-    if (prefixParseFunction != nullptr)
+    leftExpression = prefixParseFunction(this);
+
+    while (!currentTokenIs(Token::SEMICOLON) && precedence < getPrecedence(curToken->type))
     {
-        leftExpression = prefixParseFunction();
-    }
-    else
-    {
-        std::string message("No prefix parse function for " + Token::getTypeString(curToken->type) + " found");
-        errors.emplace_back(message);
-        throw PrefixParseError();
+        auto infixParseFunction = getInfixParseFunction(curToken->type);
+        leftExpression = infixParseFunction(this, leftExpression);
     }
 
     return leftExpression;
@@ -207,7 +243,33 @@ std::shared_ptr<Expression> Parser::parseExpression(Precedence precedence)
 
 PrefixParseFunction Parser::getPrefixParseFunction(Token::TokenType type)
 {
-    return prefixParseFunctionMap[type];
+    auto function = prefixParseFunctionMap.find(type);
+    if (function != prefixParseFunctionMap.end())
+    {
+        return function->second;
+    }
+    else
+    {
+        std::string message("No prefix parse function for " + Token::getTypeString(curToken->type) + " found");
+        errors.emplace_back(message);
+        throw PrefixParseError();
+    }
 }
+
+InfixParseFunction Parser::getInfixParseFunction(Token::TokenType type)
+{
+    auto function = infixParseFunctionMap.find(type);
+    if (function != infixParseFunctionMap.end())
+    {
+        return infixParseFunctionMap[type];
+    }
+    else
+    {
+        std::string message("No infix parse function for " + Token::getTypeString(curToken->type) + " found");
+        errors.emplace_back(message);
+        throw InfixParseError();
+    }
+}
+
 
 

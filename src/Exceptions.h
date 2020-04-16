@@ -14,6 +14,7 @@
 class ParserException : public std::exception {};
 class WrongTokenException : public ParserException {};
 class PrefixParseError : public ParserException {};
+class InfixParseError : public ParserException {};
 class EndOfFileException : public ParserException {};
 
 

@@ -26,7 +26,8 @@ enum class Precedence
 };
 
 class Parser;
-typedef std::function<std::shared_ptr<Expression>(void)> PrefixParseFunction;
+typedef std::function<std::shared_ptr<Expression>(Parser*)> PrefixParseFunction;
+typedef std::function<std::shared_ptr<Expression>(Parser*, std::shared_ptr<Expression>)> InfixParseFunction;
 
 class Parser
 {
@@ -40,11 +41,14 @@ private:
     std::unique_ptr<Token> curToken;
     std::unique_ptr<Token> peekToken;
     std::unordered_map<Token::TokenType, PrefixParseFunction> prefixParseFunctionMap;
+    std::unordered_map<Token::TokenType, InfixParseFunction> infixParseFunctionMap;
+    std::unordered_map<Token::TokenType, Precedence> precedenceMap;
 
-    bool currentTokenIs(const Token::TokenType &type) const;
-    bool peekTokenIs(const Token::TokenType &type) const;
+    bool currentTokenIs(const Token::TokenType &) const;
+    bool peekTokenIs(const Token::TokenType &) const;
     void nextToken();
-    void nextTokenIfType(Token::TokenType type);
+    void nextTokenIfType(Token::TokenType);
+    Precedence getPrecedence(Token::TokenType);
     std::shared_ptr<Statement> parseStatement();
     std::shared_ptr<Statement> parseLetStatement();
     std::shared_ptr<Statement> parseReturnStatement();
@@ -52,10 +56,12 @@ private:
     std::shared_ptr<Identifier> parseIdentifier();
     std::shared_ptr<Integer> parseInteger();
     std::shared_ptr<Expression> parsePrefixExpression();
-    std::shared_ptr<Expression> parseExpression(Precedence precedence);
+    std::shared_ptr<Expression> parseInfixExpression(std::shared_ptr<Expression>);
+    std::shared_ptr<Expression> parseExpression(Precedence);
     void consumeSemicolon();
 
-    PrefixParseFunction getPrefixParseFunction(Token::TokenType type);
+    PrefixParseFunction getPrefixParseFunction(Token::TokenType);
+    InfixParseFunction getInfixParseFunction(Token::TokenType);
 };
 
 #endif //INTERPRETER_PARSER_H

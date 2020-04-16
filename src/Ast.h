@@ -63,6 +63,20 @@ public:
 
 };
 
+class InfixExpression : public Expression
+{
+public:
+    explicit InfixExpression(std::unique_ptr<Token> token);
+    ~InfixExpression() override = default;
+    std::string string() override;
+
+    std::shared_ptr<Token> token;
+    std::shared_ptr<Expression> left;
+    std::string op;
+    std::shared_ptr<Expression> right;
+
+};
+
 // Statements
 class Statement : public Node
 {

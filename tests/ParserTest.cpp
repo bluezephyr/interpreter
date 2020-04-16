@@ -51,7 +51,26 @@ TEST_GROUP(ParserTest)
         CHECK_EQUAL(std::to_string(value), integer->string());
     }
 
-    std::shared_ptr<Expression> getAndCheckExpressionStatement(const std::shared_ptr<Statement>& statement) const
+    void checkInfixIntegerExpression(const char* input,
+                                     int left,
+                                     const std::string& expectedOp,
+                                     int right,
+                                     const std::string& expectedOutput)
+    {
+        auto parser = createParser(input);
+        auto program = parser.parseProgram();
+        CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+        CHECK_EQUAL(1, program.get()->statements.size());
+        std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+        auto* infix = dynamic_cast<InfixExpression*>(expression.get());
+        CHECK(infix != nullptr);
+        checkIntegerExpression(infix->left, left);
+        CHECK_EQUAL(expectedOp, infix->op);
+        checkIntegerExpression(infix->right, right);
+        CHECK_EQUAL(expectedOutput, infix->string());
+    }
+
+    static std::shared_ptr<Expression> getAndCheckExpressionStatement(const std::shared_ptr<Statement>& statement)
     {
         auto* expressionStatement = dynamic_cast<ExpressionStatement*>(statement.get());
         CHECK(expressionStatement != nullptr);
@@ -176,7 +195,7 @@ TEST(ParserTest, parseIdentifierExpression)
 {
     auto parser = createParser("foobar;");
     auto program = parser.parseProgram();
-    CHECK_EQUAL(0, parser.errors.size());
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
     CHECK_EQUAL(1, program.get()->statements.size());
     std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
     auto* identifier = dynamic_cast<Identifier*>(expression.get());
@@ -190,7 +209,7 @@ TEST(ParserTest, parseIntegerLiteralExpression)
 {
     auto parser = createParser("5;");
     auto program = parser.parseProgram();
-    CHECK_EQUAL(0, parser.errors.size());
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
     CHECK_EQUAL(1, program.get()->statements.size());
     std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
     checkIntegerExpression(expression, 5);
@@ -200,7 +219,7 @@ TEST(ParserTest, parseBangPrefixExpression)
 {
     auto parser = createParser("!5;");
     auto program = parser.parseProgram();
-    CHECK_EQUAL(0, parser.errors.size());
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
     CHECK_EQUAL(1, program.get()->statements.size());
     std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
     auto* prefix = dynamic_cast<PrefixExpression*>(expression.get());
@@ -214,7 +233,7 @@ TEST(ParserTest, parseMinusPrefixExpression)
 {
     auto parser = createParser("-15");
     auto program = parser.parseProgram();
-    CHECK_EQUAL(0, parser.errors.size());
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
     CHECK_EQUAL(1, program.get()->statements.size());
     std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
     auto* prefix = dynamic_cast<PrefixExpression*>(expression.get());
@@ -224,7 +243,48 @@ TEST(ParserTest, parseMinusPrefixExpression)
     CHECK_EQUAL("(-15)", prefix->string());
 }
 
+TEST(ParserTest, parsePlusInfixExpression)
+{
+    checkInfixIntegerExpression("5+8;", 5, "+", 8, "(5 + 8)");
+}
+
+TEST(ParserTest, parseMinusInfixExpression)
+{
+    checkInfixIntegerExpression("8-5;", 8, "-", 5, "(8 - 5)");
+}
+
+TEST(ParserTest, parseProductInfixExpression)
+{
+    checkInfixIntegerExpression("3*7;", 3, "*", 7, "(3 * 7)");
+}
+
+TEST(ParserTest, parseDivisionInfixExpression)
+{
+    checkInfixIntegerExpression("24 / 4;", 24, "/", 4, "(24 / 4)");
+}
+
+TEST(ParserTest, parseGreaterThanInfixExpression)
+{
+    checkInfixIntegerExpression("5>4;", 5, ">", 4, "(5 > 4)");
+}
+
+TEST(ParserTest, parseLessThanInfixExpression)
+{
+    checkInfixIntegerExpression("15 < 4;", 15, "<", 4, "(15 < 4)");
+}
+
+TEST(ParserTest, parseEqualInfixExpression)
+{
+    checkInfixIntegerExpression("9 == 4;", 9, "==", 4, "(9 == 4)");
+}
+
+TEST(ParserTest, parseNotEqualInfixExpression)
+{
+    checkInfixIntegerExpression("9 != 4;", 9, "!=", 4, "(9 != 4)");
+}
+
 int main(int ac, char** av)
 {
     return CommandLineTestRunner::RunAllTests(ac, av);
 }
+
