@@ -12,6 +12,12 @@
 #include "CppUTest/TestHarness.h"
 #include "CppUTest/CommandLineTestRunner.h"
 
+struct TestTuple
+{
+    std::string input;
+    std::string expectedResult;
+};
+
 TEST_GROUP(ParserTest)
 {
     void setup() override
@@ -78,6 +84,15 @@ TEST_GROUP(ParserTest)
         return expressionStatement->expression;
     }
 
+    void checkParserOutputOk(const TestTuple& test)
+    {
+        auto l = Lexer(test.input.c_str());
+        auto parser = Parser(l);
+        auto program = parser.parseProgram();
+        CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+        CHECK_EQUAL(test.expectedResult, program->string());
+    }
+
     Parser createParser(const char* input)
     {
         lexer = new Lexer(input);
@@ -85,7 +100,7 @@ TEST_GROUP(ParserTest)
         return parser;
     }
 
-    std::shared_ptr<Program> parse(const std::string& input) const
+    static std::shared_ptr<Program> parse(const std::string& input)
     {
         auto lexer = Lexer(input.c_str());
         auto parser = Parser(lexer);
@@ -281,6 +296,45 @@ TEST(ParserTest, parseEqualInfixExpression)
 TEST(ParserTest, parseNotEqualInfixExpression)
 {
     checkInfixIntegerExpression("9 != 4;", 9, "!=", 4, "(9 != 4)");
+}
+
+TEST(ParserTest, checkOperatorPrecedenceParsing)
+{
+    std::vector<TestTuple> tests
+    {
+        {"-a * b", "((-a) * b)\n"},
+        {"!-a", "(!(-a))\n"},
+        {"a + b + c", "((a + b) + c)\n"},
+        {"a + b - c", "((a + b) - c)\n"},
+        {"a * b * c", "((a * b) * c)\n"},
+        {"a * b / c", "((a * b) / c)\n"},
+        {"a + b / c", "(a + (b / c))\n"},
+        {"a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)\n"},
+        {"3 + 4; -5 * 5", "(3 + 4)\n((-5) * 5)\n"},
+        {"5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))\n"},
+        {"5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))\n"},
+        {"3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))\n"},
+    };
+
+    for (const auto& test: tests)
+    {
+        checkParserOutputOk(test);
+    }
+}
+
+TEST(ParserTest, checkGroupedPrecedenceParsing)
+{
+    std::vector<TestTuple> tests
+    {
+        {"(3 + 4);", "(3 + 4)\n"},
+        {"(3 + 4)", "(3 + 4)\n"},
+        {"(3 + 4)(-5 * 5)", "(3 + 4)\n((-5) * 5)\n"},
+    };
+
+    for (const auto& test: tests)
+    {
+        checkParserOutputOk(test);
+    }
 }
 
 int main(int ac, char** av)

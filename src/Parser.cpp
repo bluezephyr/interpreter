@@ -15,6 +15,7 @@ Parser::Parser(Lexer &lexer) : lexer(lexer)
     prefixParseFunctionMap[Token::INT] = &Parser::parseInteger;
     prefixParseFunctionMap[Token::BANG] = &Parser::parsePrefixExpression;
     prefixParseFunctionMap[Token::MINUS] = &Parser::parsePrefixExpression;
+    prefixParseFunctionMap[Token::LPAREN] = &Parser::parseGroupedExpression;
     infixParseFunctionMap[Token::PLUS] = &Parser::parseInfixExpression;
     infixParseFunctionMap[Token::MINUS] = &Parser::parseInfixExpression;
     infixParseFunctionMap[Token::ASTERISK] = &Parser::parseInfixExpression;
@@ -215,6 +216,25 @@ std::shared_ptr<Expression> Parser::parsePrefixExpression()
     return expression;
 }
 
+std::shared_ptr<Expression> Parser::parseGroupedExpression()
+{
+    nextToken();
+    auto expression = parseExpression(Precedence::LOWEST);
+    if (currentTokenIs(Token::RPAREN))
+    {
+        nextToken();
+    }
+    else
+    {
+        std::string message("Expected " + Token::getTypeString(Token::RPAREN) + " token. Got " +
+                            Token::getTypeString(curToken->type) + " token (" +
+                            *(curToken->literal) + ")");
+        errors.emplace_back(message);
+        throw WrongTokenException();
+    }
+    return expression;
+}
+
 std::shared_ptr<Expression> Parser::parseInfixExpression(std::shared_ptr<Expression> left)
 {
     auto expression = std::make_shared<InfixExpression>(std::move(curToken));
@@ -227,12 +247,10 @@ std::shared_ptr<Expression> Parser::parseInfixExpression(std::shared_ptr<Express
 
 std::shared_ptr<Expression> Parser::parseExpression(Precedence precedence)
 {
-    std::shared_ptr<Expression> leftExpression = nullptr;
-
     auto prefixParseFunction = getPrefixParseFunction(curToken->type);
-    leftExpression = prefixParseFunction(this);
+    std::shared_ptr<Expression> leftExpression = prefixParseFunction(this);
 
-    while (!currentTokenIs(Token::SEMICOLON) && precedence < getPrecedence(curToken->type))
+    while (precedence < getPrecedence(curToken->type))
     {
         auto infixParseFunction = getInfixParseFunction(curToken->type);
         leftExpression = infixParseFunction(this, leftExpression);
