@@ -34,6 +34,28 @@ TEST(AstTest, testReturnStatementString)
     CHECK_EQUAL("return ;", statement.string());
 }
 
+TEST(AstTest, testIntegerString)
+{
+    std::unique_ptr<Token> token = std::make_unique<Token>("15");
+    Integer integer(std::move(token));
+    integer.value = 15;
+    CHECK_EQUAL("15", integer.string());
+}
+
+TEST(AstTest, testBooleanTrueString)
+{
+    std::unique_ptr<Token> token = std::make_unique<Token>("true");
+    Boolean boolean(std::move(token), true);
+    CHECK_EQUAL("true", boolean.string());
+}
+
+TEST(AstTest, testBooleanFalseString)
+{
+    std::unique_ptr<Token> token = std::make_unique<Token>("false");
+    Boolean boolean(std::move(token), false);
+    CHECK_EQUAL("false", boolean.string());
+}
+
 int main(int ac, char** av)
 {
     return CommandLineTestRunner::RunAllTests(ac, av);

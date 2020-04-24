@@ -50,6 +50,17 @@ public:
     int64_t value;
 };
 
+class Boolean : public Expression
+{
+public:
+    explicit Boolean(std::unique_ptr<Token> token, bool value);
+    ~Boolean() override = default;
+    std::string string() override;
+
+    std::shared_ptr<Token> token;
+    bool value;
+};
+
 class PrefixExpression : public Expression
 {
 public:

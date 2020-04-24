@@ -58,6 +58,11 @@ TEST_GROUP(ParserTest)
         CHECK_EQUAL(std::to_string(value), integer->string());
     }
 
+    void checkBooleanExpression(const std::shared_ptr<Expression>& expression, bool value) const
+    {
+        CHECK(expression != nullptr);
+    }
+
     void checkInfixIntegerExpression(const char* input,
                                      int left,
                                      const std::string& expectedOp,
@@ -299,6 +304,26 @@ TEST(ParserTest, parseNotEqualInfixExpression)
     checkInfixIntegerExpression("9 != 4;", 9, "!=", 4, "(9 != 4)");
 }
 
+TEST(ParserTest, parseBooleanExpressionTrue)
+{
+    auto parser = createParser("true;");
+    auto program = parser.parseProgram();
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    checkBooleanExpression(expression, true);
+}
+
+TEST(ParserTest, parseBooleanExpressionFalse)
+{
+    auto parser = createParser("false;");
+    auto program = parser.parseProgram();
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    checkBooleanExpression(expression, false);
+}
+
 TEST(ParserTest, checkOperatorPrecedenceParsing)
 {
     std::vector<TestTuple> tests
@@ -315,6 +340,10 @@ TEST(ParserTest, checkOperatorPrecedenceParsing)
         {"5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))\n"},
         {"5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))\n"},
         {"3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))\n"},
+        {"true", "true\n"},
+        {"false", "false\n"},
+        {"5 > 4 == true", "((5 > 4) == true)\n"},
+        {"5 < 4 == false", "((5 < 4) == false)\n"},
     };
 
     for (const auto& test: tests)

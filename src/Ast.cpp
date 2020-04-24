@@ -30,6 +30,23 @@ std::string Integer::string()
     return std::to_string(value);
 }
 
+// Boolean
+Boolean::Boolean(std::unique_ptr<Token> token, bool value) :
+        token(std::move(token)),
+        value{value} {}
+
+std::string Boolean::string()
+{
+    if (value)
+    {
+        return "true";
+    }
+    else
+    {
+        return "false";
+    }
+}
+
 // PrefixExpression
 PrefixExpression::PrefixExpression(std::unique_ptr<Token> token) :
         token(std::move(token)),

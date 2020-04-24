@@ -16,6 +16,8 @@ Parser::Parser(Lexer &lexer) : lexer(lexer)
     prefixParseFunctionMap[Token::BANG] = &Parser::parsePrefixExpression;
     prefixParseFunctionMap[Token::MINUS] = &Parser::parsePrefixExpression;
     prefixParseFunctionMap[Token::LPAREN] = &Parser::parseGroupedExpression;
+    prefixParseFunctionMap[Token::TRUE] = &Parser::parseBoolean;
+    prefixParseFunctionMap[Token::FALSE] = &Parser::parseBoolean;
     infixParseFunctionMap[Token::PLUS] = &Parser::parseInfixExpression;
     infixParseFunctionMap[Token::MINUS] = &Parser::parseInfixExpression;
     infixParseFunctionMap[Token::ASTERISK] = &Parser::parseInfixExpression;
@@ -214,6 +216,15 @@ std::shared_ptr<Integer> Parser::parseInteger()
     }
 }
 
+std::shared_ptr<Boolean> Parser::parseBoolean()
+{
+    std::shared_ptr<Boolean> boolean = std::make_shared<Boolean>(
+            std::move(curToken),
+            currentTokenIs(Token::TRUE));
+    nextToken();
+    return boolean;
+}
+
 std::shared_ptr<Expression> Parser::parsePrefixExpression()
 {
     auto expression = std::make_shared<PrefixExpression>(std::move(curToken));
@@ -295,6 +306,4 @@ InfixParseFunction Parser::getInfixParseFunction(Token::TokenType type)
         throw InfixParseError();
     }
 }
-
-
 
