@@ -13,6 +13,7 @@ Lexer::Lexer(const char *input) : input {input}
     curPos = 0;
     readPos = 0;
     currentChar = 0;
+    EOFFound = false;
     readChar();
 }
 
@@ -26,8 +27,15 @@ std::unique_ptr<Token> Lexer::nextToken()
     switch (currentChar)
     {
         case 0:
-            token = std::make_unique<Token>(Token::ENDOFFILE, std::string());
-            readChar();
+            if (EOFFound)
+            {
+                token = nullptr;
+            }
+            else
+            {
+                token = std::make_unique<Token>(Token::ENDOFFILE, std::string());
+                EOFFound = true;
+            }
             break;
 
         case '=':

@@ -24,6 +24,7 @@ private:
     int curPos;
     int readPos;
     char currentChar;
+    bool EOFFound;
 
     void readChar();
     char peekChar();

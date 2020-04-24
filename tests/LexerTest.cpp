@@ -8,6 +8,7 @@
 
 #include <Lexer.h>
 #include <Token.h>
+#include <Exceptions.h>
 #include "CppUTest/TestHarness.h"
 #include "CppUTest/CommandLineTestRunner.h"
 
@@ -56,14 +57,13 @@ TEST(LexerTest, nextTokenEOF)
     CHECK(token->literal.get()->empty());
 }
 
-// TODO:
 // Make sure that the nextToken method does not proceed beyond EOF.
 // Repeated call to the method after a first EOF will return nullptr.
 TEST(LexerTest, noTokensAfterEOF)
 {
     lexer = new Lexer("");
-    token = lexer->nextToken();
-    token = lexer->nextToken();
+    (void) lexer->nextToken();
+    POINTERS_EQUAL(nullptr, lexer->nextToken().get());
 }
 
 TEST(LexerTest, nextTokenIllegal)
