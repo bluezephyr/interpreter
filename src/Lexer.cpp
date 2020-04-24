@@ -33,7 +33,7 @@ std::unique_ptr<Token> Lexer::nextToken()
             }
             else
             {
-                token = std::make_unique<Token>(Token::ENDOFFILE, std::string());
+                token = std::make_unique<Token>(Token::ENDOFFILE, std::string("EOF"));
                 EOFFound = true;
             }
             break;

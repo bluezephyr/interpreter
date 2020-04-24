@@ -48,8 +48,15 @@ bool Parser::peekTokenIs(const Token::TokenType &type) const
 
 void Parser::nextToken()
 {
-    curToken = std::move(peekToken);
-    peekToken = lexer.nextToken();
+    if (peekToken != nullptr)
+    {
+        curToken = std::move(peekToken);
+        peekToken = lexer.nextToken();
+    }
+    else
+    {
+        throw NoMoreTokensException();
+    }
 }
 
 void Parser::nextTokenIfType(Token::TokenType type)
@@ -106,9 +113,9 @@ std::shared_ptr<Program> Parser::parseProgram()
             consumeSemicolon();
         }
     }
-    catch (EndOfFileException&)
+    catch (NoMoreTokensException&)
     {
-        errors.emplace_back("Unexpected EOF");
+        errors.emplace_back("Expected more tokens, but none present");
     }
 
     return program;

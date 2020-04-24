@@ -16,6 +16,7 @@ struct TestTuple
 {
     std::string input;
     std::string expectedResult;
+    int errors;
 };
 
 TEST_GROUP(ParserTest)
@@ -326,6 +327,7 @@ TEST(ParserTest, checkGroupedPrecedenceParsing)
 {
     std::vector<TestTuple> tests
     {
+        {"(4);", "4\n"},
         {"(3 + 4);", "(3 + 4)\n"},
         {"(3 + 4)", "(3 + 4)\n"},
         {"(3 + 4)(-5 * 5)", "(3 + 4)\n((-5) * 5)\n"},
@@ -334,6 +336,28 @@ TEST(ParserTest, checkGroupedPrecedenceParsing)
     for (const auto& test: tests)
     {
         checkParserOutputOk(test);
+    }
+}
+
+TEST(ParserTest, unmatchedParenthesisError)
+{
+    std::vector<TestTuple> tests
+    {
+        {"(3 + 4(", "Expected RPAREN token. Got LPAREN token (()", 2},
+        {")", "No prefix parse function for RPAREN found", 2},
+        {"(4))", "No prefix parse function for RPAREN found", 2},
+        {"(4;", "Expected RPAREN token. Got SEMICOLON token (;)", 1},
+        {"((3+5)*(4)", "Expected RPAREN token. Got EOF token (EOF)", 2},
+        {"(((2));", "Expected RPAREN token. Got SEMICOLON token (;)", 1},
+    };
+
+    for (const auto& test: tests)
+    {
+        auto l = Lexer(test.input.c_str());
+        auto parser = Parser(l);
+        auto program = parser.parseProgram();
+        CHECK_EQUAL_TEXT(test.errors, parser.errors.size(), parser.errors[0].c_str());
+        CHECK_EQUAL(test.expectedResult, parser.errors[0]);
     }
 }
 

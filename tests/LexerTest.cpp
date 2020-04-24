@@ -54,7 +54,7 @@ TEST(LexerTest, nextTokenEOF)
     token = lexer->nextToken();
 
     CHECK_EQUAL(Token::ENDOFFILE, token->type);
-    CHECK(token->literal.get()->empty());
+    CHECK_EQUAL("EOF", *(token->literal.get()));
 }
 
 // Make sure that the nextToken method does not proceed beyond EOF.
