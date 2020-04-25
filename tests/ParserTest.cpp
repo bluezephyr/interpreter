@@ -19,6 +19,15 @@ struct TestTuple
     int errors;
 };
 
+struct BooleanInfixTest
+{
+    std::string input;
+    bool left;
+    const std::string& expectedOp;
+    bool right;
+    const std::string& expectedOutput;
+};
+
 TEST_GROUP(ParserTest)
 {
     void setup() override
@@ -61,6 +70,17 @@ TEST_GROUP(ParserTest)
     void checkBooleanExpression(const std::shared_ptr<Expression>& expression, bool value) const
     {
         CHECK(expression != nullptr);
+        auto boolean = dynamic_cast<Boolean*>(expression.get());
+        CHECK(boolean != nullptr);
+        CHECK_EQUAL(value, boolean->value);
+        if (value)
+        {
+            CHECK_EQUAL("true", boolean->string());
+        }
+        else
+        {
+            CHECK_EQUAL("false", boolean->string());
+        }
     }
 
     void checkInfixIntegerExpression(const char* input,
@@ -90,7 +110,7 @@ TEST_GROUP(ParserTest)
         return expressionStatement->expression;
     }
 
-    void checkParserOutputOk(const TestTuple& test)
+    static void checkParserOutputOk(const TestTuple& test)
     {
         auto l = Lexer(test.input.c_str());
         auto parser = Parser(l);
@@ -322,6 +342,32 @@ TEST(ParserTest, parseBooleanExpressionFalse)
     CHECK_EQUAL(1, program.get()->statements.size());
     std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
     checkBooleanExpression(expression, false);
+}
+
+TEST(ParserTest, parseBooleanInfixExpressions)
+{
+    std::vector<BooleanInfixTest> tests
+    {
+        {"true == true", true, "==", true, "(true == true)"},
+        {"true != false", true, "!=", false, "(true != false)"},
+        {"false == false", false, "==", false, "(false == false)"},
+    };
+
+    for (auto test: tests)
+    {
+        auto l = Lexer(test.input.c_str());
+        auto parser = Parser(l);
+        auto program = parser.parseProgram();
+        CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+        CHECK_EQUAL(1, program.get()->statements.size());
+        std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+        auto* infix = dynamic_cast<InfixExpression*>(expression.get());
+        CHECK(infix != nullptr);
+        checkBooleanExpression(infix->left, test.left);
+        CHECK_EQUAL(test.expectedOp, infix->op);
+        checkBooleanExpression(infix->right, test.right);
+        CHECK_EQUAL(test.expectedOutput, infix->string());
+    }
 }
 
 TEST(ParserTest, checkOperatorPrecedenceParsing)
