@@ -463,6 +463,44 @@ TEST(ParserTest, unmatchedParenthesisError)
     }
 }
 
+TEST(ParserTest, parseIfNoElseExpression)
+{
+    auto parser = createParser("if (x < y) { x }");
+    auto program = parser.parseProgram();
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    auto* ifExpression = dynamic_cast<IfExpression*>(expression.get());
+    CHECK(ifExpression != nullptr);
+    CHECK(ifExpression->token != nullptr);
+    CHECK_EQUAL(Token::IF, (ifExpression->token->type));
+    CHECK_EQUAL("if", *ifExpression->token->literal);
+    CHECK(ifExpression->condition != nullptr);
+    CHECK_EQUAL("(x < y)", ifExpression->condition->string());
+    CHECK_EQUAL("x\n", ifExpression->consequence->string());
+    CHECK(ifExpression->alternative == nullptr);
+    CHECK_EQUAL("if (x < y) { x\n }\n", ifExpression->string());
+}
+
+TEST(ParserTest, parseIfWithElseExpression)
+{
+    auto parser = createParser("if (x < y) { x } else { y }");
+    auto program = parser.parseProgram();
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    auto* ifExpression = dynamic_cast<IfExpression*>(expression.get());
+    CHECK(ifExpression != nullptr);
+    CHECK(ifExpression->token != nullptr);
+    CHECK_EQUAL(Token::IF, (ifExpression->token->type));
+    CHECK_EQUAL("if", *ifExpression->token->literal);
+    CHECK(ifExpression->condition != nullptr);
+    CHECK_EQUAL("(x < y)", ifExpression->condition->string());
+    CHECK_EQUAL("x\n", ifExpression->consequence->string());
+    CHECK_EQUAL("y\n", ifExpression->alternative->string());
+    CHECK_EQUAL("if (x < y) { x\n } else { y\n }\n", ifExpression->string());
+}
+
 int main(int ac, char** av)
 {
     return CommandLineTestRunner::RunAllTests(ac, av);

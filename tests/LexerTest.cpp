@@ -134,14 +134,14 @@ TEST(LexerTest, nextTokenRightParenthesis)
 
 TEST(LexerTest, nextTokenLeftBracket)
 {
-    lexer = new Lexer("[");
-    assertNextTokenSingleCharToken(Token::LBRACE, '[');
+    lexer = new Lexer("{");
+    assertNextTokenSingleCharToken(Token::LBRACE, '{');
 }
 
 TEST(LexerTest, nextTokenRightBracket)
 {
-    lexer = new Lexer("]");
-    assertNextTokenSingleCharToken(Token::RBRACE, ']');
+    lexer = new Lexer("}");
+    assertNextTokenSingleCharToken(Token::RBRACE, '}');
 }
 
 TEST(LexerTest, nextTokenComma)
@@ -158,7 +158,7 @@ TEST(LexerTest, nextTokenSemicolon)
 
 TEST(LexerTest, readSingleCharTokenSequence)
 {
-    lexer = new Lexer("=+-!*/<>,;()[]");
+    lexer = new Lexer("=+-!*/<>,;(){}");
 
     assertNextTokenSingleCharToken(Token::ASSIGN, '=');
     assertNextTokenSingleCharToken(Token::PLUS, '+');
@@ -172,8 +172,8 @@ TEST(LexerTest, readSingleCharTokenSequence)
     assertNextTokenSingleCharToken(Token::SEMICOLON, ';');
     assertNextTokenSingleCharToken(Token::LPAREN, '(');
     assertNextTokenSingleCharToken(Token::RPAREN, ')');
-    assertNextTokenSingleCharToken(Token::LBRACE, '[');
-    assertNextTokenSingleCharToken(Token::RBRACE, ']');
+    assertNextTokenSingleCharToken(Token::LBRACE, '{');
+    assertNextTokenSingleCharToken(Token::RBRACE, '}');
 }
 
 TEST(LexerTest, nextTokenEqual)

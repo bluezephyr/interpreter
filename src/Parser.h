@@ -53,6 +53,7 @@ private:
     std::shared_ptr<Statement> parseLetStatement();
     std::shared_ptr<Statement> parseReturnStatement();
     std::shared_ptr<Statement> parseExpressionStatement();
+    std::shared_ptr<Statement> parseBlockStatement();
     std::shared_ptr<Identifier> parseIdentifier();
     std::shared_ptr<Integer> parseInteger();
     std::shared_ptr<Boolean> parseBoolean();
@@ -60,6 +61,7 @@ private:
     std::shared_ptr<Expression> parseGroupedExpression();
     std::shared_ptr<Expression> parseInfixExpression(std::shared_ptr<Expression>);
     std::shared_ptr<Expression> parseExpression(Precedence);
+    std::shared_ptr<Expression> parseIfExpression();
     void consumeSemicolon();
 
     PrefixParseFunction getPrefixParseFunction(Token::TokenType);

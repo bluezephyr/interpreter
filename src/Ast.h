@@ -28,6 +28,13 @@ public:
     std::string string() override = 0;
 };
 
+class Statement : public Node
+{
+public:
+    ~Statement() override = default;
+    std::string string() override = 0;
+};
+
 class Identifier : public Expression
 {
 public:
@@ -71,7 +78,6 @@ public:
     std::shared_ptr<Token> token;
     std::string op;
     std::shared_ptr<Expression> right;
-
 };
 
 class InfixExpression : public Expression
@@ -85,17 +91,22 @@ public:
     std::shared_ptr<Expression> left;
     std::string op;
     std::shared_ptr<Expression> right;
+};
 
+class IfExpression : public Expression
+{
+public:
+    explicit IfExpression(std::unique_ptr<Token> token);
+    ~IfExpression() override = default;
+    std::string string() override;
+
+    std::shared_ptr<Token> token;
+    std::shared_ptr<Expression> condition;
+    std::shared_ptr<Statement> consequence;
+    std::shared_ptr<Statement> alternative;
 };
 
 // Statements
-class Statement : public Node
-{
-public:
-    ~Statement() override = default;
-    std::string string() override = 0;
-};
-
 class LetStatement : public Statement
 {
 public:
@@ -128,6 +139,15 @@ public:
     std::shared_ptr<Expression> expression;
 };
 
+class BlockStatement : public Statement
+{
+public:
+    BlockStatement() = default;
+    ~BlockStatement() override = default;
+    std::string string() override;
+    std::vector<std::shared_ptr<Statement>> statements;
+};
+
 // Program
 class Program : public Node
 {
@@ -140,3 +160,4 @@ public:
 };
 
 #endif //INTERPRETER_AST_H
+

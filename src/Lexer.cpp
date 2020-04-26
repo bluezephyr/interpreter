@@ -92,11 +92,11 @@ std::unique_ptr<Token> Lexer::nextToken()
             token = readSingleCharToken(Token::RPAREN);
             break;
 
-        case '[':
+        case '{':
             token = readSingleCharToken(Token::LBRACE);
             break;
 
-        case ']':
+        case '}':
             token = readSingleCharToken(Token::RBRACE);
             break;
 

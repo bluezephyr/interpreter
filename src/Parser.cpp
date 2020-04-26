@@ -18,6 +18,7 @@ Parser::Parser(Lexer &lexer) : lexer(lexer)
     prefixParseFunctionMap[Token::LPAREN] = &Parser::parseGroupedExpression;
     prefixParseFunctionMap[Token::TRUE] = &Parser::parseBoolean;
     prefixParseFunctionMap[Token::FALSE] = &Parser::parseBoolean;
+    prefixParseFunctionMap[Token::IF] = &Parser::parseIfExpression;
     infixParseFunctionMap[Token::PLUS] = &Parser::parseInfixExpression;
     infixParseFunctionMap[Token::MINUS] = &Parser::parseInfixExpression;
     infixParseFunctionMap[Token::ASTERISK] = &Parser::parseInfixExpression;
@@ -179,6 +180,37 @@ std::shared_ptr<Statement> Parser::parseExpressionStatement()
     return statement;
 }
 
+std::shared_ptr<Statement> Parser::parseBlockStatement()
+{
+    auto block = std::make_shared<BlockStatement>();
+
+    try
+    {
+        while (!currentTokenIs(Token::RBRACE))
+        {
+            try
+            {
+                block->statements.emplace_back(parseStatement());
+            }
+            catch (ParserException &)
+            {
+                // Consume the rest of the statement and continue parsing after that
+                while (curToken->type != Token::SEMICOLON)
+                {
+                    nextToken();
+                }
+            }
+        }
+    }
+    catch (NoMoreTokensException&)
+    {
+        errors.emplace_back("Expected more tokens, but none present");
+    }
+
+    nextToken();
+    return block;
+}
+
 std::shared_ptr<Identifier> Parser::parseIdentifier()
 {
     if(currentTokenIs(Token::IDENTIFIER))
@@ -260,6 +292,25 @@ std::shared_ptr<Expression> Parser::parseInfixExpression(std::shared_ptr<Express
     expression->op = std::string(*expression->token->literal);
     nextToken();
     expression->right = parseExpression(getPrecedence(expression->token->type));
+    return expression;
+}
+
+// if ( <condition> ) { <consequence> } [ else { <alternative> } ]
+std::shared_ptr<Expression> Parser::parseIfExpression()
+{
+    auto expression = std::make_shared<IfExpression>(std::move(curToken));
+    nextToken();
+    nextTokenIfType(Token::LPAREN);
+    expression->condition = parseExpression(Precedence::LOWEST);
+    nextTokenIfType(Token::RPAREN);
+    nextTokenIfType(Token::LBRACE);
+    expression->consequence = parseBlockStatement();
+    if(currentTokenIs(Token::ELSE))
+    {
+        nextToken();
+        nextTokenIfType(Token::LBRACE);
+        expression->alternative = parseBlockStatement();
+    }
     return expression;
 }
 

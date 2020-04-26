@@ -15,6 +15,32 @@ TEST_GROUP(AstTest)
 {
     void setup() override {}
     void teardown() override {}
+
+    std::shared_ptr<Expression> createInfixLtExpression(const std::string& left, const std::string& right)
+    {
+        std::unique_ptr<Token> ltToken = std::make_unique<Token>("<");
+        std::unique_ptr<Token> leftInteger = std::make_unique<Token>(Token::INT, left);
+        std::unique_ptr<Token> rightInteger = std::make_unique<Token>(Token::INT, right);
+        std::shared_ptr<InfixExpression> expression = std::make_shared<InfixExpression>(std::move(ltToken));
+        std::shared_ptr<Integer> leftExp = std::make_shared<Integer>(std::move(leftInteger));
+        leftExp->value = std::stoi(left);
+        std::shared_ptr<Integer> rightExp = std::make_shared<Integer>(std::move(rightInteger));
+        rightExp->value = std::stoi(right);
+        expression->left = leftExp;
+        expression->right = rightExp;
+        expression->op = "<";
+        return expression;
+    }
+
+    std::shared_ptr<Statement> createIdentifierStatement(const std::string& identifier)
+    {
+        std::unique_ptr<Token> idToken = std::make_unique<Token>(Token::IDENTIFIER, identifier);
+        std::shared_ptr<Identifier> expression = std::make_shared<Identifier>(std::move(idToken));
+        expression->value = std::make_shared<std::string>(identifier);
+        std::shared_ptr<ExpressionStatement> statement = std::make_shared<ExpressionStatement>();
+        statement->expression = expression;
+        return statement;
+    }
 };
 
 TEST(AstTest, testLetStatementString)
@@ -54,6 +80,16 @@ TEST(AstTest, testBooleanFalseString)
     std::unique_ptr<Token> token = std::make_unique<Token>("false");
     Boolean boolean(std::move(token), false);
     CHECK_EQUAL("false", boolean.string());
+}
+
+TEST(AstTest, testIfStatementString)
+{
+    std::unique_ptr<Token> ifToken = std::make_unique<Token>("if");
+    IfExpression expression(std::move(ifToken));
+    expression.condition = createInfixLtExpression("5", "10");
+    expression.consequence = createIdentifierStatement("x");
+    expression.alternative = createIdentifierStatement("y");
+    CHECK_EQUAL("if (5 < 10) { x } else { y }\n", expression.string());
 }
 
 int main(int ac, char** av)

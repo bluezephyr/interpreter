@@ -68,6 +68,25 @@ std::string InfixExpression::string()
     return std::string("(" + left->string() + " " + op + " " + right->string() + ")");
 }
 
+// IfExpression
+IfExpression::IfExpression(std::unique_ptr<Token> token) :
+        token(std::move(token)),
+        condition(nullptr),
+        consequence(nullptr),
+        alternative(nullptr) {}
+
+std::string IfExpression::string()
+{
+    auto expression = std::string(*token->literal + " " + condition->string() + " { " +
+                                  consequence->string() + " }");
+    if(alternative != nullptr)
+    {
+        expression += " else { " + alternative->string() + " }";
+    }
+
+    expression += "\n";
+    return expression;
+}
 
 // Statements
 LetStatement::LetStatement() : token(nullptr), identifier(nullptr), expression(nullptr) {}
@@ -115,6 +134,17 @@ std::string ExpressionStatement::string()
         statement += expression->string();
     }
     return statement;
+}
+
+// BlockStatement
+std::string BlockStatement::string()
+{
+    std::string block;
+    for (auto const& statement : statements)
+    {
+        block += statement->string() + "\n";
+    }
+    return block;
 }
 
 // Program
