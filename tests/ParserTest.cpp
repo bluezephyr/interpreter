@@ -19,7 +19,7 @@ struct TestTuple
     int errors;
 };
 
-struct BooleanInfixTest
+struct BooleanTestSetup
 {
     std::string input;
     bool left;
@@ -346,7 +346,7 @@ TEST(ParserTest, parseBooleanExpressionFalse)
 
 TEST(ParserTest, parseBooleanInfixExpressions)
 {
-    std::vector<BooleanInfixTest> tests
+    std::vector<BooleanTestSetup> tests
     {
         {"true == true", true, "==", true, "(true == true)"},
         {"true != false", true, "!=", false, "(true != false)"},
@@ -367,6 +367,33 @@ TEST(ParserTest, parseBooleanInfixExpressions)
         CHECK_EQUAL(test.expectedOp, infix->op);
         checkBooleanExpression(infix->right, test.right);
         CHECK_EQUAL(test.expectedOutput, infix->string());
+    }
+}
+
+TEST(ParserTest, parseBooleanPrefixExpressions)
+{
+    std::vector<BooleanTestSetup> tests
+    {
+        // Note! Left operand is not used.
+        {"!true", false, "!", true,  "(!true)"},
+        {"!false", false,  "!", false,  "(!false)"},
+        {"!(false)", false,  "!", false,  "(!false)"},
+        {"(!(true))", false,  "!", true,  "(!true)"},
+    };
+
+    for (auto test: tests)
+    {
+        auto l = Lexer(test.input.c_str());
+        auto parser = Parser(l);
+        auto program = parser.parseProgram();
+        CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+        CHECK_EQUAL(1, program.get()->statements.size());
+        std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+        auto *prefix = dynamic_cast<PrefixExpression *>(expression.get());
+        CHECK(prefix != nullptr);
+        CHECK_EQUAL(test.expectedOp, prefix->op);
+        checkBooleanExpression(prefix->right, test.right);
+        CHECK_EQUAL(test.expectedOutput, prefix->string());
     }
 }
 
