@@ -47,6 +47,28 @@ std::string Boolean::string()
     }
 }
 
+// Function
+Function::Function(std::unique_ptr<Token> token) :
+        token(std::move(token)) {}
+
+std::string Function::string()
+{
+    auto expression = std::string(*token->literal + "(");
+    for (const auto& parameter: parameters)
+    {
+        expression += parameter->string();
+        if(parameter != parameters.back())
+        {
+            expression += ", ";
+        }
+    }
+    expression += ") { ";
+    expression += body->string();
+    expression += " }";
+
+    return expression;
+}
+
 // PrefixExpression
 PrefixExpression::PrefixExpression(std::unique_ptr<Token> token) :
         token(std::move(token)),

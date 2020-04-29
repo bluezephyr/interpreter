@@ -68,6 +68,18 @@ public:
     bool value;
 };
 
+class Function : public Expression
+{
+public:
+    explicit Function(std::unique_ptr<Token> token);
+    ~Function() override = default;
+    std::string string() override;
+
+    std::shared_ptr<Token> token;
+    std::vector<std::shared_ptr<Identifier>> parameters;
+    std::shared_ptr<Statement> body;
+};
+
 class PrefixExpression : public Expression
 {
 public:

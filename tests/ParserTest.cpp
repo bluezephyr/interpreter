@@ -50,12 +50,14 @@ TEST_GROUP(ParserTest)
         CHECK_EQUAL(name, *letStatement->identifier->value);
     }
 
-    void checkReturnStatement(const std::shared_ptr<Statement>& statement) const
+    void checkReturnStatement(const std::shared_ptr<Statement>& statement, std::string expected) const
     {
         auto* returnStatement = dynamic_cast<ReturnStatement *>(statement.get());
         CHECK(returnStatement->token != nullptr);
         CHECK_EQUAL(Token::RETURN, (returnStatement->token->type));
         CHECK_EQUAL("return", *returnStatement->token->literal);
+        CHECK(returnStatement->expression != nullptr);
+        CHECK_EQUAL(expected, returnStatement->string());
     }
 
     void checkIntegerExpression(const std::shared_ptr<Expression>& expression, int64_t value) const
@@ -214,11 +216,12 @@ TEST(ParserTest, parseSingleReturnStatement)
 {
     auto program = parse("return 5;");
     CHECK_FALSE(program.get()->statements.empty());
-    checkReturnStatement(program->statements.front());
+    checkReturnStatement(program->statements.front(), "return 5;");
 }
 
 TEST(ParserTest, parseReturnStatements)
 {
+    std::vector<std::string> expected = {"return 5;", "return 10;", "return 423432;"};
     auto parser = createParser("return 5;\n"
                                "return 10;\n"
                                "return 423432\n");
@@ -226,9 +229,11 @@ TEST(ParserTest, parseReturnStatements)
     CHECK_FALSE(program.get()->statements.empty());
     CHECK_EQUAL(3, program.get()->statements.size());
 
+    auto i = 0;
     for (auto const& statement : program->statements)
     {
-        checkReturnStatement(statement);
+        checkReturnStatement(statement, expected[i]);
+        ++i;
     }
 }
 
@@ -499,6 +504,55 @@ TEST(ParserTest, parseIfWithElseExpression)
     CHECK_EQUAL("x\n", ifExpression->consequence->string());
     CHECK_EQUAL("y\n", ifExpression->alternative->string());
     CHECK_EQUAL("if (x < y) { x\n } else { y\n }\n", ifExpression->string());
+}
+
+TEST(ParserTest, parseFunctionLiteral)
+{
+    auto parser = createParser("fn(x, y) { x + y; }");
+    auto program = parser.parseProgram();
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    auto* fnExpression = dynamic_cast<Function*>(expression.get());
+    CHECK(fnExpression != nullptr);
+    CHECK(fnExpression->token != nullptr);
+    CHECK_EQUAL(Token::FUNCTION, fnExpression->token->type);
+    CHECK(fnExpression->body != nullptr);
+    CHECK_EQUAL("(x + y)\n", fnExpression->body->string());
+    CHECK_EQUAL(2, fnExpression->parameters.size());
+    CHECK_EQUAL("x", *fnExpression->parameters[0]->value);
+    CHECK_EQUAL("y", *fnExpression->parameters[1]->value);
+    CHECK_EQUAL("fn(x, y) { (x + y)\n }", fnExpression->string());
+}
+
+TEST(ParserTest, parseFunctionLiteralNoParameters)
+{
+    auto parser = createParser("fn() { return 10; }");
+    auto program = parser.parseProgram();
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    auto* fnExpression = dynamic_cast<Function*>(expression.get());
+    CHECK(fnExpression != nullptr);
+    CHECK(fnExpression->token != nullptr);
+    CHECK_EQUAL(Token::FUNCTION, fnExpression->token->type);
+    CHECK_EQUAL(0, fnExpression->parameters.size());
+    CHECK_EQUAL("fn() { return 10;\n }", fnExpression->string());
+}
+
+TEST(ParserTest, parseFunctionLiteralOneParameter)
+{
+    auto parser = createParser("fn(x) { return 10*x; }");
+    auto program = parser.parseProgram();
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    auto* fnExpression = dynamic_cast<Function*>(expression.get());
+    CHECK(fnExpression != nullptr);
+    CHECK(fnExpression->token != nullptr);
+    CHECK_EQUAL(Token::FUNCTION, fnExpression->token->type);
+    CHECK_EQUAL(1, fnExpression->parameters.size());
+    CHECK_EQUAL("fn(x) { return (10 * x);\n }", fnExpression->string());
 }
 
 int main(int ac, char** av)

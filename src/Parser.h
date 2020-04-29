@@ -57,6 +57,8 @@ private:
     std::shared_ptr<Identifier> parseIdentifier();
     std::shared_ptr<Integer> parseInteger();
     std::shared_ptr<Boolean> parseBoolean();
+    std::shared_ptr<Function> parseFunction();
+    std::vector<std::shared_ptr<Identifier>> parseFunctionParameters();
     std::shared_ptr<Expression> parsePrefixExpression();
     std::shared_ptr<Expression> parseGroupedExpression();
     std::shared_ptr<Expression> parseInfixExpression(std::shared_ptr<Expression>);

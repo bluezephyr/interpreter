@@ -19,6 +19,7 @@ Parser::Parser(Lexer &lexer) : lexer(lexer)
     prefixParseFunctionMap[Token::TRUE] = &Parser::parseBoolean;
     prefixParseFunctionMap[Token::FALSE] = &Parser::parseBoolean;
     prefixParseFunctionMap[Token::IF] = &Parser::parseIfExpression;
+    prefixParseFunctionMap[Token::FUNCTION] = &Parser::parseFunction;
     infixParseFunctionMap[Token::PLUS] = &Parser::parseInfixExpression;
     infixParseFunctionMap[Token::MINUS] = &Parser::parseInfixExpression;
     infixParseFunctionMap[Token::ASTERISK] = &Parser::parseInfixExpression;
@@ -112,8 +113,8 @@ std::shared_ptr<Program> Parser::parseProgram()
                 {
                     nextToken();
                 }
+                consumeSemicolon();
             }
-            consumeSemicolon();
         }
     }
     catch (NoMoreTokensException&)
@@ -151,6 +152,7 @@ std::shared_ptr<Statement> Parser::parseStatement()
             statement = parseExpressionStatement();
             break;
     }
+    consumeSemicolon();
     return statement;
 }
 
@@ -255,6 +257,37 @@ std::shared_ptr<Boolean> Parser::parseBoolean()
             currentTokenIs(Token::TRUE));
     nextToken();
     return boolean;
+}
+
+// fn ( [ <parameter 1>, <parameter 2>, ... ] ) { <consequence> } [ else { <alternative> } ]
+std::shared_ptr<Function> Parser::parseFunction()
+{
+    auto function = std::make_shared<Function>(std::move(curToken));
+    nextToken();
+    nextTokenIfType(Token::LPAREN);
+    function->parameters = parseFunctionParameters();
+    nextTokenIfType(Token::RPAREN);
+    nextTokenIfType(Token::LBRACE);
+    function->body = parseBlockStatement();
+
+    return function;
+}
+
+std::vector<std::shared_ptr<Identifier>> Parser::parseFunctionParameters()
+{
+    std::vector<std::shared_ptr<Identifier>> parameters;
+
+    while(!currentTokenIs(Token::RPAREN))
+    {
+        parameters.push_back(parseIdentifier());
+        if (currentTokenIs(Token::RPAREN))
+        {
+            break;
+        }
+
+        nextTokenIfType(Token::COMMA);
+    }
+    return std::move(parameters);
 }
 
 std::shared_ptr<Expression> Parser::parsePrefixExpression()
