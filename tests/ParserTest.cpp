@@ -437,7 +437,7 @@ TEST(ParserTest, checkGroupedPrecedenceParsing)
         {"(4);", "4\n"},
         {"(3 + 4);", "(3 + 4)\n"},
         {"(3 + 4)", "(3 + 4)\n"},
-        {"(3 + 4)(-5 * 5)", "(3 + 4)\n((-5) * 5)\n"},
+        {"(3 + 4);(-5 * 5)", "(3 + 4)\n((-5) * 5)\n"},
     };
 
     for (const auto& test: tests)
@@ -450,7 +450,7 @@ TEST(ParserTest, unmatchedParenthesisError)
 {
     std::vector<TestTuple> tests
     {
-        {"(3 + 4(", "Expected RPAREN token. Got LPAREN token (()", 2},
+        {"(3 + 4()", "Expected RPAREN token. Got EOF token (EOF)", 2},
         {")", "No prefix parse function for RPAREN found", 2},
         {"(4))", "No prefix parse function for RPAREN found", 2},
         {"(4;", "Expected RPAREN token. Got SEMICOLON token (;)", 1},
@@ -552,7 +552,55 @@ TEST(ParserTest, parseFunctionLiteralOneParameter)
     CHECK(fnExpression->token != nullptr);
     CHECK_EQUAL(Token::FUNCTION, fnExpression->token->type);
     CHECK_EQUAL(1, fnExpression->parameters.size());
-    CHECK_EQUAL("fn(x) { return (10 * x);\n }", fnExpression->string());
+    CHECK_EQUAL(std::string("fn(x) { return (10 * x);\n }"), fnExpression->string());
+}
+
+TEST(ParserTest, parseCallExpressionNoArguments)
+{
+    auto parser = createParser("add();");
+    auto program = parser.parseProgram();
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    auto* callExpression = dynamic_cast<CallExpression*>(expression.get());
+    CHECK(callExpression != nullptr);
+    CHECK_EQUAL(Token::LPAREN, callExpression->token->type);
+    auto* identifier = dynamic_cast<Identifier*>(callExpression->function.get());
+    CHECK(identifier != nullptr);
+    CHECK_EQUAL(Token::IDENTIFIER, (identifier->token->type));
+    CHECK_EQUAL(std::string("add"), *identifier->value);
+    CHECK_EQUAL(std::string("add()"), expression->string());
+}
+
+TEST(ParserTest, parseCallExpressionWithArguments)
+{
+    auto parser = createParser("calculate(1, 2+3, 4*5);");
+    auto program = parser.parseProgram();
+    CHECK_EQUAL_TEXT(0, parser.errors.size(), parser.errors[0].c_str());
+    CHECK_EQUAL(1, program.get()->statements.size());
+    std::shared_ptr<Expression> expression = getAndCheckExpressionStatement(program->statements.front());
+    auto* callExpression = dynamic_cast<CallExpression*>(expression.get());
+    CHECK(callExpression != nullptr);
+    CHECK_EQUAL(Token::LPAREN, callExpression->token->type);
+    auto* identifier = dynamic_cast<Identifier*>(callExpression->function.get());
+    CHECK(identifier != nullptr);
+    CHECK_EQUAL(Token::IDENTIFIER, (identifier->token->type));
+    CHECK_EQUAL(std::string("calculate"), *identifier->value);
+    CHECK_EQUAL(3, callExpression->arguments.size());
+    checkIntegerExpression(callExpression->arguments[0], 1);
+    auto* infix = dynamic_cast<InfixExpression*>(callExpression->arguments[1].get());
+    CHECK(infix != nullptr);
+    checkIntegerExpression(infix->left, 2);
+    CHECK_EQUAL(std::string("+"), infix->op);
+    checkIntegerExpression(infix->right, 3);
+    CHECK_EQUAL(std::string("(2 + 3)"), infix->string());
+    infix = dynamic_cast<InfixExpression*>(callExpression->arguments[2].get());
+    CHECK(infix != nullptr);
+    checkIntegerExpression(infix->left, 4);
+    CHECK_EQUAL(std::string("*"), infix->op);
+    checkIntegerExpression(infix->right, 5);
+    CHECK_EQUAL(std::string("(4 * 5)"), infix->string());
+    CHECK_EQUAL(std::string("calculate(1, (2 + 3), (4 * 5))"), expression->string());
 }
 
 int main(int ac, char** av)

@@ -80,6 +80,18 @@ public:
     std::shared_ptr<Statement> body;
 };
 
+class CallExpression : public Expression
+{
+public:
+    explicit CallExpression(std::unique_ptr<Token> token);
+    ~CallExpression() override = default;
+    std::string string() override;
+
+    std::shared_ptr<Token> token;
+    std::shared_ptr<Expression> function;
+    std::vector<std::shared_ptr<Expression>> arguments;
+};
+
 class PrefixExpression : public Expression
 {
 public:

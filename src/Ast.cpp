@@ -69,6 +69,26 @@ std::string Function::string()
     return expression;
 }
 
+// CallExpression
+CallExpression::CallExpression(std::unique_ptr<Token> token) :
+        token(std::move(token)),
+        function(nullptr) {}
+
+std::string CallExpression::string()
+{
+    auto expression = std::string(function->string() + "(");
+    for (const auto& argument: arguments)
+    {
+        expression += argument->string();
+        if(argument != arguments.back())
+        {
+            expression += ", ";
+        }
+    }
+    expression += ")";
+    return expression;
+}
+
 // PrefixExpression
 PrefixExpression::PrefixExpression(std::unique_ptr<Token> token) :
         token(std::move(token)),

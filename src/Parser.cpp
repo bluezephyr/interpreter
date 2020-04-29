@@ -9,6 +9,8 @@
 #include "Exceptions.h"
 #include "Parser.h"
 
+#include <utility>
+
 Parser::Parser(Lexer &lexer) : lexer(lexer)
 {
     prefixParseFunctionMap[Token::IDENTIFIER] = &Parser::parseIdentifier;
@@ -28,6 +30,7 @@ Parser::Parser(Lexer &lexer) : lexer(lexer)
     infixParseFunctionMap[Token::LT] = &Parser::parseInfixExpression;
     infixParseFunctionMap[Token::EQ] = &Parser::parseInfixExpression;
     infixParseFunctionMap[Token::NEQ] = &Parser::parseInfixExpression;
+    infixParseFunctionMap[Token::LPAREN] = &Parser::parseCallExpression;
     precedenceMap[Token::EQ] = Precedence::EQUALS;
     precedenceMap[Token::NEQ] = Precedence::EQUALS;
     precedenceMap[Token::LT] = Precedence::LESSGREATER;
@@ -36,6 +39,7 @@ Parser::Parser(Lexer &lexer) : lexer(lexer)
     precedenceMap[Token::MINUS] = Precedence::SUM;
     precedenceMap[Token::SLASH] = Precedence::PRODUCT;
     precedenceMap[Token::ASTERISK] = Precedence::PRODUCT;
+    precedenceMap[Token::LPAREN] = Precedence::CALL;
     curToken = lexer.nextToken();
     peekToken = lexer.nextToken();
 }
@@ -328,6 +332,20 @@ std::shared_ptr<Expression> Parser::parseInfixExpression(std::shared_ptr<Express
     return expression;
 }
 
+std::shared_ptr<Expression> Parser::parseExpression(Precedence precedence)
+{
+    auto prefixParseFunction = getPrefixParseFunction(curToken->type);
+    std::shared_ptr<Expression> leftExpression = prefixParseFunction(this);
+
+    while (precedence < getPrecedence(curToken->type))
+    {
+        auto infixParseFunction = getInfixParseFunction(curToken->type);
+        leftExpression = infixParseFunction(this, leftExpression);
+    }
+
+    return leftExpression;
+}
+
 // if ( <condition> ) { <consequence> } [ else { <alternative> } ]
 std::shared_ptr<Expression> Parser::parseIfExpression()
 {
@@ -347,18 +365,31 @@ std::shared_ptr<Expression> Parser::parseIfExpression()
     return expression;
 }
 
-std::shared_ptr<Expression> Parser::parseExpression(Precedence precedence)
+std::shared_ptr<Expression> Parser::parseCallExpression(std::shared_ptr<Expression> function)
 {
-    auto prefixParseFunction = getPrefixParseFunction(curToken->type);
-    std::shared_ptr<Expression> leftExpression = prefixParseFunction(this);
+    auto callExpression = std::make_shared<CallExpression>(std::move(curToken));
+    callExpression->function = std::move(function);
+    nextToken();
+    callExpression->arguments = parseCallArguments();
+    return callExpression;
+}
 
-    while (precedence < getPrecedence(curToken->type))
+std::vector<std::shared_ptr<Expression>> Parser::parseCallArguments()
+{
+    std::vector<std::shared_ptr<Expression>> arguments;
+
+    while(!currentTokenIs(Token::RPAREN))
     {
-        auto infixParseFunction = getInfixParseFunction(curToken->type);
-        leftExpression = infixParseFunction(this, leftExpression);
-    }
+        arguments.push_back(parseExpression(Precedence::LOWEST));
+        if (currentTokenIs(Token::RPAREN))
+        {
+            break;
+        }
 
-    return leftExpression;
+        nextTokenIfType(Token::COMMA);
+    }
+    nextTokenIfType(Token::RPAREN);
+    return std::move(arguments);
 }
 
 PrefixParseFunction Parser::getPrefixParseFunction(Token::TokenType type)

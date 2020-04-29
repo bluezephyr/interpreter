@@ -64,6 +64,8 @@ private:
     std::shared_ptr<Expression> parseInfixExpression(std::shared_ptr<Expression>);
     std::shared_ptr<Expression> parseExpression(Precedence);
     std::shared_ptr<Expression> parseIfExpression();
+    std::shared_ptr<Expression> parseCallExpression(std::shared_ptr<Expression>);
+    std::vector<std::shared_ptr<Expression>> parseCallArguments();
     void consumeSemicolon();
 
     PrefixParseFunction getPrefixParseFunction(Token::TokenType);
