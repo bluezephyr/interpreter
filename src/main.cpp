@@ -7,6 +7,7 @@
  */
 #include <iostream>
 #include "Lexer.h"
+#include "Parser.h"
 
 int main()
 {
@@ -18,13 +19,23 @@ int main()
     {
         if (!line.empty())
         {
-            auto lexer = Lexer(line.c_str());
-            std::unique_ptr<Token> token = lexer.nextToken();
-            while (token->type != Token::ENDOFFILE)
+            auto l = Lexer(line.c_str());
+            auto parser = Parser(l);
+            auto program = parser.parseProgram();
+
+            if (!parser.errors.empty())
             {
-                std::cout << *(token->literal) << std::endl;
-                token = lexer.nextToken();
+                for (const auto& error : parser.errors)
+                {
+                    std::cout << error << std::endl;
+                }
             }
+
+            for (auto statement : program->statements)
+            {
+                std::cout << statement->string() << std::endl;
+            }
+
         }
         std::cout << ">>> ";
     }

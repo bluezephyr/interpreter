@@ -7,23 +7,23 @@ implementation done in C++ instead of Go. For more details regarding the Monkey 
 [MonkeyLang](https://monkeylang.org/).
 
 **Note!** The current status of the implementation is very rudimentary; only a first version of a
-lexical analyser and a simple REPL have been implemented so far.
+lexical analyser, a parser and a simple REPL have been implemented so far.
 
 ## REPL
 A first version of a Read Eval Print Loop (REPL) has been implemented. The REPL is an interactive
 command line tool that reads input, send this input to the interpreter and outputs a result. An
-example can be seen below. The interpreter will take a line as input an output its tokens.
+example can be seen below. The interpreter will take a line as input, send it through the lexer
+and the parser and output the parsed statements.
 
     Monkey Programming Language Interpreter!
     See https://monkeylang.org/ for more information
     Type in your commands (exit with CRTL-D)
-    >>> let x=5;
-    let
-    x
-    =
-    5
-    ;
-    >>>
+    >>> let x=5; let y = 8+4*10;
+    let x = 5;
+    let y = (8 + (4 * 10));
+    >>> if (x)
+    Expected LBRACE token. Got EOF token (EOF)
+    Expected more tokens, but none present
 
 ## Build
 The implementation of the interpreter is done i C++ and the build chain uses CMake. See
