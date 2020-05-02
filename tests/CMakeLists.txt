@@ -23,7 +23,11 @@ target_link_libraries(ast_test ast token CppUTest CppUTestExt)
 add_executable(parser_test ParserTest.cpp)
 target_link_libraries(parser_test token lexer parser CppUTest CppUTestExt)
 
+add_executable(object_test ObjectTest.cpp)
+target_link_libraries(object_test object CppUTest CppUTestExt)
+
 add_test(ast ast_test)
 add_test(token token_test)
 add_test(lexer lexer_test)
 add_test(parser parser_test)
+add_test(object object_test)

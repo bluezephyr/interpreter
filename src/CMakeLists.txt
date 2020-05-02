@@ -8,6 +8,11 @@ add_library(lexer
     Lexer.cpp)
 target_include_directories(lexer PUBLIC ../src)
 
+add_library(object
+    Object.h
+    Object.cpp)
+target_include_directories(object PUBLIC ../src)
+
 add_library(ast
     Ast.h
     Ast.cpp)
