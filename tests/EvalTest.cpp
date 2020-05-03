@@ -27,7 +27,7 @@ TEST_GROUP(EvalTest)
     }
 };
 
-TEST(EvalTest, evalIntegerExpression)
+TEST(EvalTest, evalPositiveIntegerExpression)
 {
     auto evaluated = parseAndEvaluate("5;");
     CHECK_EQUAL(Object::Type::INTEGER, evaluated->getType());

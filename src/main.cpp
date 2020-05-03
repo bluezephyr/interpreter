@@ -31,11 +31,11 @@ int main()
                 }
             }
 
-            for (auto statement : program->statements)
+            auto evaluated = program->eval();
+            if (evaluated != nullptr)
             {
-                std::cout << statement->string() << std::endl;
+                std::cout << evaluated->inspect() << std::endl;
             }
-
         }
         std::cout << ">>> ";
     }
