@@ -13,26 +13,26 @@
 #include <string>
 #include <vector>
 #include "Token.h"
+#include "Object.h"
 
 class Node
 {
 public:
     virtual ~Node() = default;
     virtual std::string string() = 0;
+    virtual std::shared_ptr<Object> eval() = 0;
 };
 
 class Expression : public Node
 {
 public:
     ~Expression() override = default;
-    std::string string() override = 0;
 };
 
 class Statement : public Node
 {
 public:
     ~Statement() override = default;
-    std::string string() override = 0;
 };
 
 class Identifier : public Expression
@@ -41,6 +41,7 @@ public:
     explicit Identifier(std::unique_ptr<Token> token);
     ~Identifier() override = default;
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
 
     std::shared_ptr<Token> token;
     std::shared_ptr<std::string> value;
@@ -52,6 +53,7 @@ public:
     explicit Integer(std::unique_ptr<Token> token);
     ~Integer() override = default;
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
 
     std::shared_ptr<Token> token;
     int64_t value;
@@ -63,6 +65,7 @@ public:
     explicit Boolean(std::unique_ptr<Token> token, bool value);
     ~Boolean() override = default;
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
 
     std::shared_ptr<Token> token;
     bool value;
@@ -74,6 +77,7 @@ public:
     explicit Function(std::unique_ptr<Token> token);
     ~Function() override = default;
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
 
     std::shared_ptr<Token> token;
     std::vector<std::shared_ptr<Identifier>> parameters;
@@ -86,6 +90,7 @@ public:
     explicit CallExpression(std::unique_ptr<Token> token);
     ~CallExpression() override = default;
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
 
     std::shared_ptr<Token> token;
     std::shared_ptr<Expression> function;
@@ -98,6 +103,7 @@ public:
     explicit PrefixExpression(std::unique_ptr<Token> token);
     ~PrefixExpression() override = default;
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
 
     std::shared_ptr<Token> token;
     std::string op;
@@ -110,6 +116,7 @@ public:
     explicit InfixExpression(std::unique_ptr<Token> token);
     ~InfixExpression() override = default;
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
 
     std::shared_ptr<Token> token;
     std::shared_ptr<Expression> left;
@@ -123,6 +130,7 @@ public:
     explicit IfExpression(std::unique_ptr<Token> token);
     ~IfExpression() override = default;
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
 
     std::shared_ptr<Token> token;
     std::shared_ptr<Expression> condition;
@@ -138,6 +146,8 @@ public:
     explicit LetStatement(std::unique_ptr<Token> token);
     ~LetStatement() override = default;
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
+
     std::shared_ptr<Token> token;
     std::shared_ptr<Identifier> identifier;
     std::shared_ptr<Expression> expression;
@@ -150,6 +160,8 @@ public:
     explicit ReturnStatement(std::unique_ptr<Token> token);
     ~ReturnStatement() override = default;
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
+
     std::shared_ptr<Token> token;
     std::shared_ptr<Expression> expression;
 };
@@ -160,6 +172,8 @@ public:
     ExpressionStatement();
     ~ExpressionStatement() override = default;
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
+
     std::shared_ptr<Expression> expression;
 };
 
@@ -169,6 +183,8 @@ public:
     BlockStatement() = default;
     ~BlockStatement() override = default;
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
+
     std::vector<std::shared_ptr<Statement>> statements;
 };
 
@@ -178,8 +194,10 @@ class Program : public Node
 public:
     Program() = default;
     ~Program() override = default;
-    void addStatement(std::shared_ptr<Statement> statement);
     std::string string() override;
+    std::shared_ptr<Object> eval() override;
+    void addStatement(std::shared_ptr<Statement> statement);
+
     std::vector<std::shared_ptr<Statement>> statements;
 };
 

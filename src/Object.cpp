@@ -25,4 +25,3 @@ int64_t IntegerObject::getValue() const
     return value;
 }
 
-

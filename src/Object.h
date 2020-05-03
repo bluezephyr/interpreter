@@ -24,7 +24,7 @@ public:
     virtual enum Type getType() = 0;
 };
 
-class IntegerObject : Object
+class IntegerObject : public Object
 {
 public:
     explicit IntegerObject(int64_t value);

@@ -19,6 +19,11 @@ std::string Identifier::string()
     return std::string(*value);
 }
 
+std::shared_ptr<Object> Identifier::eval()
+{
+   return nullptr;
+}
+
 // Integer
 Integer::Integer(std::unique_ptr<Token> token) : token(std::move(token))
 {
@@ -28,6 +33,11 @@ Integer::Integer(std::unique_ptr<Token> token) : token(std::move(token))
 std::string Integer::string()
 {
     return std::to_string(value);
+}
+
+std::shared_ptr<Object> Integer::eval()
+{
+    return std::make_shared<IntegerObject>(value);
 }
 
 // Boolean
@@ -45,6 +55,11 @@ std::string Boolean::string()
     {
         return "false";
     }
+}
+
+std::shared_ptr<Object> Boolean::eval()
+{
+    return nullptr;
 }
 
 // Function
@@ -69,6 +84,11 @@ std::string Function::string()
     return expression;
 }
 
+std::shared_ptr<Object> Function::eval()
+{
+    return nullptr;
+}
+
 // CallExpression
 CallExpression::CallExpression(std::unique_ptr<Token> token) :
         token(std::move(token)),
@@ -89,6 +109,11 @@ std::string CallExpression::string()
     return expression;
 }
 
+std::shared_ptr<Object> CallExpression::eval()
+{
+    return nullptr;
+}
+
 // PrefixExpression
 PrefixExpression::PrefixExpression(std::unique_ptr<Token> token) :
         token(std::move(token)),
@@ -97,6 +122,11 @@ PrefixExpression::PrefixExpression(std::unique_ptr<Token> token) :
 std::string PrefixExpression::string()
 {
     return std::string("(" + op + right->string() + ")");
+}
+
+std::shared_ptr<Object> PrefixExpression::eval()
+{
+    return nullptr;
 }
 
 // InfixExpression
@@ -108,6 +138,11 @@ InfixExpression::InfixExpression(std::unique_ptr<Token> token) :
 std::string InfixExpression::string()
 {
     return std::string("(" + left->string() + " " + op + " " + right->string() + ")");
+}
+
+std::shared_ptr<Object> InfixExpression::eval()
+{
+    return nullptr;
 }
 
 // IfExpression
@@ -130,6 +165,11 @@ std::string IfExpression::string()
     return expression;
 }
 
+std::shared_ptr<Object> IfExpression::eval()
+{
+    return nullptr;
+}
+
 // Statements
 LetStatement::LetStatement() : token(nullptr), identifier(nullptr), expression(nullptr) {}
 LetStatement::LetStatement(std::unique_ptr<Token> token) :
@@ -150,6 +190,11 @@ std::string LetStatement::string()
     return statement;
 }
 
+std::shared_ptr<Object> LetStatement::eval()
+{
+    return nullptr;
+}
+
 ReturnStatement::ReturnStatement() : token(nullptr), expression(nullptr) {}
 ReturnStatement::ReturnStatement(std::unique_ptr<Token> token) :
         token(std::move(token)),
@@ -166,6 +211,11 @@ std::string ReturnStatement::string()
     return statement;
 }
 
+std::shared_ptr<Object> ReturnStatement::eval()
+{
+    return nullptr;
+}
+
 // Expressions
 ExpressionStatement::ExpressionStatement() : expression(nullptr) {}
 std::string ExpressionStatement::string()
@@ -178,6 +228,11 @@ std::string ExpressionStatement::string()
     return statement;
 }
 
+std::shared_ptr<Object> ExpressionStatement::eval()
+{
+    return expression->eval();
+}
+
 // BlockStatement
 std::string BlockStatement::string()
 {
@@ -187,6 +242,11 @@ std::string BlockStatement::string()
         block += statement->string() + "\n";
     }
     return block;
+}
+
+std::shared_ptr<Object> BlockStatement::eval()
+{
+    return nullptr;
 }
 
 // Program
@@ -203,5 +263,15 @@ std::string Program::string()
         programString += statement->string() + "\n";
     }
     return programString;
+}
+
+std::shared_ptr<Object> Program::eval()
+{
+    std::shared_ptr<Object> result;
+    for(const auto& statement: statements)
+    {
+        result = statement->eval();
+    }
+    return result;
 }
 
