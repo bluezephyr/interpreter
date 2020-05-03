@@ -59,7 +59,7 @@ std::string Boolean::string()
 
 std::shared_ptr<Object> Boolean::eval()
 {
-    return nullptr;
+    return std::make_shared<BooleanObject>(value);
 }
 
 // Function

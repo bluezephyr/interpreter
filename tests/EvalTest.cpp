@@ -37,6 +37,26 @@ TEST(EvalTest, evalPositiveIntegerExpression)
     CHECK_EQUAL(5, integer->getValue());
 }
 
+TEST(EvalTest, evalTrueBooleanExpression)
+{
+    auto evaluated = parseAndEvaluate("true;");
+    CHECK_EQUAL(Object::Type::BOOLEAN, evaluated->getType());
+    CHECK_EQUAL(std::string("true"), evaluated->inspect());
+    auto* boolean = dynamic_cast<BooleanObject*>(evaluated.get());
+    CHECK(boolean != nullptr);
+    CHECK(boolean->getValue());
+}
+
+TEST(EvalTest, evalFalseBooleanExpression)
+{
+    auto evaluated = parseAndEvaluate("false;");
+    CHECK_EQUAL(Object::Type::BOOLEAN, evaluated->getType());
+    CHECK_EQUAL(std::string("false"), evaluated->inspect());
+    auto* boolean = dynamic_cast<BooleanObject*>(evaluated.get());
+    CHECK(boolean != nullptr);
+    CHECK_FALSE(boolean->getValue());
+}
+
 int main(int ac, char** av)
 {
     return CommandLineTestRunner::RunAllTests(ac, av);

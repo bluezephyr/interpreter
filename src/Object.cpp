@@ -17,7 +17,7 @@ std::string IntegerObject::inspect()
 
 Object::Type IntegerObject::getType()
 {
-    return INTEGER;
+    return Object::INTEGER;
 }
 
 int64_t IntegerObject::getValue() const
@@ -25,3 +25,19 @@ int64_t IntegerObject::getValue() const
     return value;
 }
 
+BooleanObject::BooleanObject(bool value) : value(value) {}
+
+std::string BooleanObject::inspect()
+{
+    return std::string(value ? "true" : "false");
+}
+
+Object::Type BooleanObject::getType()
+{
+    return Object::BOOLEAN;
+}
+
+bool BooleanObject::getValue() const
+{
+    return value;
+}

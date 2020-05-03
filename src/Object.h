@@ -16,7 +16,8 @@ class Object
 public:
     enum Type
     {
-        INTEGER
+        INTEGER,
+        BOOLEAN
     };
 
     virtual ~Object() = default;
@@ -35,6 +36,19 @@ public:
 
 private:
     int64_t value;
+};
+
+class BooleanObject : public Object
+{
+public:
+    explicit BooleanObject(bool value);
+    ~BooleanObject() override = default;
+    std::string inspect() override;
+    Type getType() override;
+    bool getValue() const;
+
+private:
+    bool value;
 };
 
 #endif //INTERPRETER_OBJECT_H

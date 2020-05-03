@@ -40,6 +40,22 @@ TEST(ObjectTest, integerFromFloatIsTruncated)
     CHECK_EQUAL(std::string("56"), integer.inspect());
 }
 
+TEST(ObjectTest, testTrueBooleanObject)
+{
+    BooleanObject trueBoolean(true);
+    CHECK_EQUAL(Object::Type::BOOLEAN, trueBoolean.getType());
+    CHECK_EQUAL(true, trueBoolean.getValue());
+    CHECK_EQUAL(std::string("true"), trueBoolean.inspect());
+}
+
+TEST(ObjectTest, testFalseBooleanObject)
+{
+    BooleanObject falseBoolean(false);
+    CHECK_EQUAL(Object::Type::BOOLEAN, falseBoolean.getType());
+    CHECK_EQUAL(false, falseBoolean.getValue());
+    CHECK_EQUAL(std::string("false"), falseBoolean.inspect());
+}
+
 int main(int ac, char** av)
 {
     return CommandLineTestRunner::RunAllTests(ac, av);
