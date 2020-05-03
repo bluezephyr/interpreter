@@ -56,6 +56,13 @@ TEST(ObjectTest, testFalseBooleanObject)
     CHECK_EQUAL(std::string("false"), falseBoolean.inspect());
 }
 
+TEST(ObjectTest, testNullObject)
+{
+    NullObject nullObject;
+    CHECK_EQUAL(Object::Type::NULLOBJECT, nullObject.getType());
+    CHECK_EQUAL(std::string("null"), nullObject.inspect());
+}
+
 int main(int ac, char** av)
 {
     return CommandLineTestRunner::RunAllTests(ac, av);

@@ -41,3 +41,14 @@ bool BooleanObject::getValue() const
 {
     return value;
 }
+
+std::string NullObject::inspect()
+{
+    return std::string("null");
+}
+
+Object::Type NullObject::getType()
+{
+    return NULLOBJECT;
+}
+

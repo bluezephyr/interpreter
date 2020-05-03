@@ -17,12 +17,21 @@ public:
     enum Type
     {
         INTEGER,
-        BOOLEAN
+        BOOLEAN,
+        NULLOBJECT
     };
 
     virtual ~Object() = default;
     virtual std::string inspect() = 0;
     virtual enum Type getType() = 0;
+};
+
+class NullObject : public Object
+{
+public:
+    ~NullObject() override = default;
+    std::string inspect() override;
+    Type getType() override;
 };
 
 class IntegerObject : public Object
