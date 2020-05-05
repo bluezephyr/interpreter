@@ -57,6 +57,34 @@ TEST(EvalTest, evalFalseBooleanExpression)
     CHECK_FALSE(boolean->getValue());
 }
 
+TEST(EvalTest, bangPrefixOnTrueBooleanReturnsFalse)
+{
+    auto evaluated = parseAndEvaluate("!true;");
+    CHECK_EQUAL(Object::Type::BOOLEAN, evaluated->getType());
+    CHECK_EQUAL(std::string("false"), evaluated->inspect());
+}
+
+TEST(EvalTest, bangPrefixOnFalseBooleanReturnsTrue)
+{
+    auto evaluated = parseAndEvaluate("!false;");
+    CHECK_EQUAL(Object::Type::BOOLEAN, evaluated->getType());
+    CHECK_EQUAL(std::string("true"), evaluated->inspect());
+}
+
+TEST(EvalTest, bangPrefixOnIntegerReturnsFalse)
+{
+    auto evaluated = parseAndEvaluate("!23;");
+    CHECK_EQUAL(Object::Type::BOOLEAN, evaluated->getType());
+    CHECK_EQUAL(std::string("false"), evaluated->inspect());
+}
+
+TEST(EvalTest, minusPrefixNegatesInteger)
+{
+    auto evaluated = parseAndEvaluate("-5");
+    CHECK_EQUAL(Object::Type::INTEGER, evaluated->getType());
+    CHECK_EQUAL(std::string("-5"), evaluated->inspect());
+}
+
 int main(int ac, char** av)
 {
     return CommandLineTestRunner::RunAllTests(ac, av);

@@ -126,6 +126,15 @@ std::string PrefixExpression::string()
 
 std::shared_ptr<Object> PrefixExpression::eval()
 {
+    auto rightEvaluated = right->eval();
+    if(token->type == Token::BANG)
+    {
+        return rightEvaluated->evalBangPrefixExpression();
+    }
+    else if (token->type == Token::MINUS)
+    {
+        return rightEvaluated->evalMinusPrefixExpression();
+    }
     return nullptr;
 }
 

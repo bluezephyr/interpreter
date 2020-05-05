@@ -63,6 +63,54 @@ TEST(ObjectTest, testNullObject)
     CHECK_EQUAL(std::string("null"), nullObject.inspect());
 }
 
+TEST(ObjectTest, bangPrefixBooleanTrueReturnsFalse)
+{
+    BooleanObject boolean(true);
+    CHECK_EQUAL(std::string("false"), boolean.evalBangPrefixExpression()->inspect());
+}
+
+TEST(ObjectTest, bangPrefixBooleanFalseReturnsTrue)
+{
+    BooleanObject boolean(false);
+    CHECK_EQUAL(std::string("true"), boolean.evalBangPrefixExpression()->inspect());
+}
+
+TEST(ObjectTest, bangPrefixIntegerReturnsFalse)
+{
+    IntegerObject integer(33);
+    CHECK_EQUAL(std::string("false"), integer.evalBangPrefixExpression()->inspect());
+}
+
+TEST(ObjectTest, bangPrefixNullReturnsTrue)
+{
+    NullObject nullObject;
+    CHECK_EQUAL(std::string("true"), nullObject.evalBangPrefixExpression()->inspect());
+}
+
+TEST(ObjectTest, minusPrefixIntegerReturnsNegativeValue)
+{
+    IntegerObject integer(25);
+    CHECK_EQUAL(std::string("-25"), integer.evalMinusPrefixExpression()->inspect());
+}
+
+TEST(ObjectTest, minusPrefixBooleanTrueReturnsNull)
+{
+    BooleanObject boolean(true);
+    CHECK_EQUAL(std::string("null"), boolean.evalMinusPrefixExpression()->inspect());
+}
+
+TEST(ObjectTest, minusPrefixBooleanFalseReturnsNull)
+{
+    BooleanObject boolean(false);
+    CHECK_EQUAL(std::string("null"), boolean.evalMinusPrefixExpression()->inspect());
+}
+
+TEST(ObjectTest, minusPrefixNullReturnsNull)
+{
+    NullObject nullObject;
+    CHECK_EQUAL(std::string("null"), nullObject.evalMinusPrefixExpression()->inspect());
+}
+
 int main(int ac, char** av)
 {
     return CommandLineTestRunner::RunAllTests(ac, av);

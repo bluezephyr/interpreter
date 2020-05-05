@@ -9,6 +9,7 @@
 #ifndef INTERPRETER_OBJECT_H
 #define INTERPRETER_OBJECT_H
 
+#include <memory>
 #include <string>
 
 class Object
@@ -24,6 +25,8 @@ public:
     virtual ~Object() = default;
     virtual std::string inspect() = 0;
     virtual enum Type getType() = 0;
+    virtual std::shared_ptr<Object> evalBangPrefixExpression() = 0;
+    virtual std::shared_ptr<Object> evalMinusPrefixExpression() = 0;
 };
 
 class NullObject : public Object
@@ -32,6 +35,8 @@ public:
     ~NullObject() override = default;
     std::string inspect() override;
     Type getType() override;
+    std::shared_ptr<Object> evalMinusPrefixExpression() override;
+    std::shared_ptr<Object> evalBangPrefixExpression() override;
 };
 
 class IntegerObject : public Object
@@ -41,6 +46,8 @@ public:
     ~IntegerObject() override = default;
     std::string inspect() override;
     Type getType() override;
+    std::shared_ptr<Object> evalBangPrefixExpression() override;
+    std::shared_ptr<Object> evalMinusPrefixExpression() override;
     int64_t getValue() const;
 
 private:
@@ -54,6 +61,8 @@ public:
     ~BooleanObject() override = default;
     std::string inspect() override;
     Type getType() override;
+    std::shared_ptr<Object> evalBangPrefixExpression() override;
+    std::shared_ptr<Object> evalMinusPrefixExpression() override;
     bool getValue() const;
 
 private:
