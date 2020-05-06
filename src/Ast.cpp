@@ -151,6 +151,29 @@ std::string InfixExpression::string()
 
 std::shared_ptr<Object> InfixExpression::eval()
 {
+    auto leftEvaluated = left->eval();
+    auto rightEvaluated = right->eval();
+    if ((leftEvaluated->getType() == Object::Type::INTEGER) &&
+            (rightEvaluated->getType() == Object::Type::INTEGER))
+    {
+        auto leftValue = dynamic_cast<IntegerObject*>(leftEvaluated.get())->getValue();
+        auto rightValue = dynamic_cast<IntegerObject*>(rightEvaluated.get())->getValue();
+
+        switch (token->type)
+        {
+            case Token::PLUS:
+                return std::make_shared<IntegerObject>(leftValue + rightValue);
+            case Token::MINUS:
+                return std::make_shared<IntegerObject>(leftValue - rightValue);
+            case Token::ASTERISK:
+                return std::make_shared<IntegerObject>(leftValue * rightValue);
+            case Token::SLASH:
+                if (rightValue != 0)
+                {
+                    return std::make_shared<IntegerObject>(leftValue / rightValue);
+                }
+        }
+    }
     return nullptr;
 }
 

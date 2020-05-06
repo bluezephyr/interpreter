@@ -12,6 +12,12 @@
 #include "CppUTest/TestHarness.h"
 #include "CppUTest/CommandLineTestRunner.h"
 
+struct IntegerTestSetup
+{
+    const char* input;
+    int64_t expected;
+};
+
 TEST_GROUP(EvalTest)
 {
     void setup() override {}
@@ -83,6 +89,31 @@ TEST(EvalTest, minusPrefixNegatesInteger)
     auto evaluated = parseAndEvaluate("-5");
     CHECK_EQUAL(Object::Type::INTEGER, evaluated->getType());
     CHECK_EQUAL(std::string("-5"), evaluated->inspect());
+}
+
+TEST(EvalTest, evalIntegerExpression)
+{
+    std::vector<IntegerTestSetup> tests
+    {
+        {"42;", 42},
+        {"-312;", -312},
+        {"2+2;", 4},
+        {"8-3;", 5},
+        {"3-8;", -5},
+        {"3*8;", 24},
+        {"3*0;", 0},
+        {"42/6;", 7},
+        {"5+4*2;", 13},
+        {"(5+4)*2;", 18},
+    };
+
+    for (auto test: tests)
+    {
+        auto evaluated = parseAndEvaluate(test.input);
+        auto* integer = dynamic_cast<IntegerObject*>(evaluated.get());
+        CHECK(integer != nullptr);
+        CHECK_EQUAL(test.expected, integer->getValue());
+    }
 }
 
 int main(int ac, char** av)

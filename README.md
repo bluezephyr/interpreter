@@ -26,7 +26,10 @@ and the parser and then evaluate the parsed statements.
     8
     >>> -55;
     55
-    let y = (8 + (4 * 10));
+    >>> 3+4*2;
+    11
+    >>> 3+4/2+9*(2+3)-8;
+    42
     >>> if (x)
     Expected LBRACE token. Got EOF token (EOF)
     Expected more tokens, but none present
