@@ -27,6 +27,11 @@ add_library(parser
 target_include_directories(parser PUBLIC ../src)
 target_link_libraries(parser ast lexer)
 
+add_library(astPrinter
+    AstPrinter.h
+    AstPrinter.cpp)
+target_include_directories(astPrinter PUBLIC .)
+
 # The interpreter
 add_executable(interpreter main.cpp)
-target_link_libraries(interpreter token lexer parser)
+target_link_libraries(interpreter token lexer parser astPrinter)

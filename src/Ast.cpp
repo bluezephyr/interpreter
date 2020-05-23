@@ -24,6 +24,11 @@ std::shared_ptr<Object> Identifier::eval()
    return nullptr;
 }
 
+void Identifier::accept(AstVisitor &visitor)
+{
+    visitor.visitIdentifier(*this);
+}
+
 // Integer
 Integer::Integer(std::unique_ptr<Token> token) : token(std::move(token))
 {
@@ -40,6 +45,11 @@ std::shared_ptr<Object> Integer::eval()
     return std::make_shared<IntegerObject>(value);
 }
 
+void Integer::accept(AstVisitor &visitor)
+{
+    visitor.visitInteger(*this);
+}
+
 // Boolean
 Boolean::Boolean(std::unique_ptr<Token> token, bool value) :
         token(std::move(token)),
@@ -47,19 +57,17 @@ Boolean::Boolean(std::unique_ptr<Token> token, bool value) :
 
 std::string Boolean::string()
 {
-    if (value)
-    {
-        return "true";
-    }
-    else
-    {
-        return "false";
-    }
+    return value ? "true" : "false";
 }
 
 std::shared_ptr<Object> Boolean::eval()
 {
     return std::make_shared<BooleanObject>(value);
+}
+
+void Boolean::accept(AstVisitor &visitor)
+{
+    visitor.visitBoolean(*this);
 }
 
 // Function
@@ -89,6 +97,11 @@ std::shared_ptr<Object> Function::eval()
     return nullptr;
 }
 
+void Function::accept(AstVisitor &visitor)
+{
+    visitor.visitFunction(*this);
+}
+
 // CallExpression
 CallExpression::CallExpression(std::unique_ptr<Token> token) :
         token(std::move(token)),
@@ -114,6 +127,11 @@ std::shared_ptr<Object> CallExpression::eval()
     return nullptr;
 }
 
+void CallExpression::accept(AstVisitor &visitor)
+{
+    visitor.visitCallExpression(*this);
+}
+
 // PrefixExpression
 PrefixExpression::PrefixExpression(std::unique_ptr<Token> token) :
         token(std::move(token)),
@@ -136,6 +154,11 @@ std::shared_ptr<Object> PrefixExpression::eval()
         return rightEvaluated->evalMinusPrefixExpression();
     }
     return nullptr;
+}
+
+void PrefixExpression::accept(AstVisitor &visitor)
+{
+    visitor.visitPrefixExpression(*this);
 }
 
 // InfixExpression
@@ -177,6 +200,11 @@ std::shared_ptr<Object> InfixExpression::eval()
     return nullptr;
 }
 
+void InfixExpression::accept(AstVisitor &visitor)
+{
+    visitor.visitInfixExpression(*this);
+}
+
 // IfExpression
 IfExpression::IfExpression(std::unique_ptr<Token> token) :
         token(std::move(token)),
@@ -200,6 +228,11 @@ std::string IfExpression::string()
 std::shared_ptr<Object> IfExpression::eval()
 {
     return nullptr;
+}
+
+void IfExpression::accept(AstVisitor &visitor)
+{
+    visitor.visitIfExpression(*this);
 }
 
 // Statements
@@ -227,6 +260,11 @@ std::shared_ptr<Object> LetStatement::eval()
     return nullptr;
 }
 
+void LetStatement::accept(AstVisitor &visitor)
+{
+    visitor.visitLetStatement(*this);
+}
+
 ReturnStatement::ReturnStatement() : token(nullptr), expression(nullptr) {}
 ReturnStatement::ReturnStatement(std::unique_ptr<Token> token) :
         token(std::move(token)),
@@ -248,6 +286,11 @@ std::shared_ptr<Object> ReturnStatement::eval()
     return nullptr;
 }
 
+void ReturnStatement::accept(AstVisitor &visitor)
+{
+    visitor.visitReturnStatement(*this);
+}
+
 // Expressions
 ExpressionStatement::ExpressionStatement() : expression(nullptr) {}
 std::string ExpressionStatement::string()
@@ -265,6 +308,11 @@ std::shared_ptr<Object> ExpressionStatement::eval()
     return expression->eval();
 }
 
+void ExpressionStatement::accept(AstVisitor &visitor)
+{
+    visitor.visitExpressionStatement(*this);
+}
+
 // BlockStatement
 std::string BlockStatement::string()
 {
@@ -279,6 +327,11 @@ std::string BlockStatement::string()
 std::shared_ptr<Object> BlockStatement::eval()
 {
     return nullptr;
+}
+
+void BlockStatement::accept(AstVisitor &visitor)
+{
+    visitor.visitBlockStatement(*this);
 }
 
 // Program
@@ -305,5 +358,10 @@ std::shared_ptr<Object> Program::eval()
         result = statement->eval();
     }
     return result;
+}
+
+void Program::accept(AstVisitor &visitor)
+{
+    visitor.visitProgram(*this);
 }
 

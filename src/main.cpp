@@ -6,10 +6,43 @@
  *
  */
 #include <iostream>
+#include <fstream>
 #include "Lexer.h"
 #include "Parser.h"
+#include "AstPrinter.h"
 
-int main()
+class ArgumentParser
+{
+public:
+    ArgumentParser(int argc, char *argv[]) : _runREPL (false), _inputFileName ("")
+    {
+        if (argc > 1)
+        {
+            // Parse arguments
+            _inputFileName = argv[1];
+        }
+        else
+        {
+            _runREPL = true;
+        }
+    }
+
+    bool runREPL() const
+    {
+        return _runREPL;
+    }
+
+    std::string inputFileName()
+    {
+        return _inputFileName;
+    }
+
+private:
+    bool _runREPL;
+    std::string _inputFileName;
+};
+
+void runREPL()
 {
     std::cout << "Monkey Programming Language Interpreter!" << std::endl;
     std::cout << "See https://monkeylang.org/ for more information" << std::endl;
@@ -25,7 +58,7 @@ int main()
 
             if (!parser.errors.empty())
             {
-                for (const auto& error : parser.errors)
+                for (const auto &error : parser.errors)
                 {
                     std::cout << error << std::endl;
                 }
@@ -40,5 +73,38 @@ int main()
         std::cout << ">>> ";
     }
     std::cout << std::endl;
+}
+
+void printProgramFromFile(const std::basic_string<char>& filename)
+{
+    std::fstream fs;
+    std::vector<char> input;
+    fs.open(filename, std::fstream::in);
+    char c;
+    while (fs.get(c))
+    {
+        input.push_back(c);
+    }
+    fs.close();
+
+    auto l = Lexer(&input[0]);
+    auto parser = Parser(l);
+    auto program = parser.parseProgram();
+    auto printer = AstPrinter();
+    std::cout << printer.printCode(program) << std::endl;
+}
+
+int main(int argc, char *argv[])
+{
+    ArgumentParser config(argc, argv);
+    if (config.runREPL())
+    {
+        runREPL();
+    }
+    else
+    {
+        printProgramFromFile(config.inputFileName());
+    }
     return 0;
 }
+

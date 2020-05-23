@@ -2,10 +2,10 @@
 if (DEFINED CPPUTEST_HOME)
     # Use only the version in the CPPUTEST_HOME folder if it is defined
     message(STATUS "Searching for CppUTest in: ${CPPUTEST_HOME}")
-    find_package(CppUTest 3.8 REQUIRED NO_DEFAULT_PATH CONFIG HINTS ${CPPUTEST_HOME})
+    find_package(CppUTest REQUIRED NO_DEFAULT_PATH CONFIG HINTS ${CPPUTEST_HOME})
 else()
     message(STATUS "Searching for installed version of CppUTest")
-    find_package(CppUTest 3.8 REQUIRED CONFIG)
+    find_package(CppUTest REQUIRED CONFIG)
 endif()
 
 message(STATUS "CppUTest version: ${CppUTest_VERSION}")
@@ -26,6 +26,9 @@ target_link_libraries(parser_test parser CppUTest CppUTestExt)
 add_executable(object_test ObjectTest.cpp)
 target_link_libraries(object_test object CppUTest CppUTestExt)
 
+add_executable(ast_printer_test AstPrinterTest.cpp)
+target_link_libraries(ast_printer_test astPrinter parser CppUTest CppUTestExt)
+
 add_executable(eval_test EvalTest.cpp)
 target_link_libraries(eval_test parser CppUTest CppUTestExt)
 
@@ -34,4 +37,5 @@ add_test(token token_test)
 add_test(lexer lexer_test)
 add_test(parser parser_test)
 add_test(object object_test)
+add_test(printer ast_printer_test)
 add_test(eval eval_test)

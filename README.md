@@ -25,7 +25,7 @@ and the parser and then evaluate the parsed statements.
     >>> 8;
     8
     >>> -55;
-    55
+    -55
     >>> 3+4*2;
     11
     >>> 3+4/2+9*(2+3)-8;
