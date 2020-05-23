@@ -29,14 +29,12 @@ class Expression : public Node
 {
 public:
     ~Expression() override = default;
-    void accept(AstVisitor&) override = 0;
 };
 
 class Statement : public Node
 {
 public:
     ~Statement() override = default;
-    void accept(AstVisitor&) override = 0;
 };
 
 class Identifier : public Expression

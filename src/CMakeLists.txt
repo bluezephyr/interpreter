@@ -32,6 +32,11 @@ add_library(astPrinter
     AstPrinter.cpp)
 target_include_directories(astPrinter PUBLIC .)
 
+add_library(evaluator
+    Evaluator.h
+    Evaluator.cpp)
+target_include_directories(evaluator PUBLIC .)
+
 # The interpreter
 add_executable(interpreter main.cpp)
-target_link_libraries(interpreter token lexer parser astPrinter)
+target_link_libraries(interpreter token lexer parser evaluator astPrinter)

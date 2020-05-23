@@ -10,6 +10,7 @@
 #include "Lexer.h"
 #include "Parser.h"
 #include "AstPrinter.h"
+#include "Evaluator.h"
 
 class ArgumentParser
 {
@@ -55,6 +56,8 @@ void runREPL()
             auto l = Lexer(line.c_str());
             auto parser = Parser(l);
             auto program = parser.parseProgram();
+            auto evaluator = Evaluator();
+
 
             if (!parser.errors.empty())
             {
@@ -64,7 +67,7 @@ void runREPL()
                 }
             }
 
-            auto evaluated = program->eval();
+            auto evaluated = evaluator.eval(*program);
             if (evaluated != nullptr)
             {
                 std::cout << evaluated->inspect() << std::endl;

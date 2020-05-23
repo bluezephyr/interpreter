@@ -30,7 +30,7 @@ add_executable(ast_printer_test AstPrinterTest.cpp)
 target_link_libraries(ast_printer_test astPrinter parser CppUTest CppUTestExt)
 
 add_executable(eval_test EvalTest.cpp)
-target_link_libraries(eval_test parser CppUTest CppUTestExt)
+target_link_libraries(eval_test evaluator parser CppUTest CppUTestExt)
 
 add_test(ast ast_test)
 add_test(token token_test)
