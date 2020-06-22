@@ -27,15 +27,22 @@ add_library(parser
 target_include_directories(parser PUBLIC ../src)
 target_link_libraries(parser ast lexer)
 
+add_library(controlToken
+    ControlToken.h
+    ControlToken.cpp)
+target_include_directories(controlToken PUBLIC .)
+
 add_library(astPrinter
     AstPrinter.h
     AstPrinter.cpp)
 target_include_directories(astPrinter PUBLIC .)
+target_link_libraries(astPrinter controlToken)
 
 add_library(evaluator
     Evaluator.h
     Evaluator.cpp)
 target_include_directories(evaluator PUBLIC .)
+target_link_libraries(evaluator controlToken)
 
 # The interpreter
 add_executable(interpreter main.cpp)

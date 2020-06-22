@@ -28,7 +28,7 @@ TEST_GROUP(PrinterTest)
 
     static std::string printProgram(const char* input)
     {
-        AstPrinter printer;
+        auto printer = AstPrinter();
         return printer.printCode(parseProgram(input));
     }
 };

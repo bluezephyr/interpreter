@@ -13,18 +13,6 @@
 #include <stack>
 #include "Ast.h"
 
-class ControlToken : public Node
-{
-public:
-    explicit ControlToken(std::string);
-    std::string string() override;
-    std::shared_ptr<Object> eval() override;
-    void accept(AstVisitor &visitor) override;
-
-private:
-    std::string _string;
-};
-
 class AstPrinter : public AstVisitor
 {
 public:

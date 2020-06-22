@@ -67,7 +67,7 @@ void runREPL()
                 }
             }
 
-            auto evaluated = evaluator.eval(*program);
+            auto evaluated = evaluator.eval(program);
             if (evaluated != nullptr)
             {
                 std::cout << evaluated->inspect() << std::endl;

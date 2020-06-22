@@ -8,13 +8,15 @@
 #ifndef INTERPRETER_EVALUATOR_H
 #define INTERPRETER_EVALUATOR_H
 
+#include <stack>
 #include "AstVisitor.h"
 #include "Object.h"
+#include "Ast.h"
 
 class Evaluator : public AstVisitor
 {
 public:
-    Evaluator() = default;
+    Evaluator();
     void visitIdentifier(Identifier&) override;
     void visitInteger(Integer&) override;
     void visitBoolean(Boolean &boolean) override;
@@ -29,7 +31,13 @@ public:
     void visitBlockStatement(BlockStatement &statement) override;
     void visitProgram(Program &program) override;
     void visitControlToken(ControlToken &controlToken) override;
-    std::shared_ptr<Object> eval(Program &program);
+    std::shared_ptr<Object> eval(const std::shared_ptr<Node>& startNode);
+
+private:
+    std::shared_ptr<Object> result;
+    std::stack<std::shared_ptr<Node>> visitStack;
+    void addStatements(std::vector<std::shared_ptr<Statement>> statements);
+    bool goingUp;
 };
 
 
