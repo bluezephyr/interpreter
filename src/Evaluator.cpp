@@ -9,7 +9,7 @@
 #include "ControlToken.h"
 #include "Evaluator.h"
 
-Evaluator::Evaluator() : result(nullptr), goingUp(false) {}
+Evaluator::Evaluator() : goingUp(false) {}
 
 std::shared_ptr<Object> Evaluator::eval(const std::shared_ptr<Node>& startNode)
 {
@@ -23,6 +23,9 @@ std::shared_ptr<Object> Evaluator::eval(const std::shared_ptr<Node>& startNode)
         node->accept(*this);
     }
 
+    auto result = evalStack.top();
+    evalStack.pop();
+
     return result;
 }
 
@@ -32,12 +35,12 @@ void Evaluator::visitIdentifier(Identifier &identifier)
 
 void Evaluator::visitInteger(Integer &integer)
 {
-    this->result = std::make_shared<IntegerObject>(integer.value);
+    evalStack.push(std::make_shared<IntegerObject>(integer.value));
 }
 
 void Evaluator::visitBoolean(Boolean &boolean)
 {
-    this->result = std::make_shared<BooleanObject>(boolean.value);
+    evalStack.push(std::make_shared<BooleanObject>(boolean.value));
 }
 
 void Evaluator::visitFunction(Function &function)
@@ -55,13 +58,15 @@ void Evaluator::visitPrefixExpression(PrefixExpression &expression)
     if(goingUp)
     {
         goingUp = false;
+        auto right = evalStack.top();
+        evalStack.pop();
         if(expression.token->type == Token::BANG)
         {
-            result = result->evalBangPrefixExpression();
+            evalStack.push(right->evalBangPrefixExpression());
         }
         else if (expression.token->type == Token::MINUS)
         {
-            result = result->evalMinusPrefixExpression();
+            evalStack.push(right->evalMinusPrefixExpression());
         }
     }
     else
@@ -74,7 +79,40 @@ void Evaluator::visitPrefixExpression(PrefixExpression &expression)
 
 void Evaluator::visitInfixExpression(InfixExpression &expression)
 {
+    if(goingUp)
+    {
+        goingUp = false;
+        auto rightEvaluated = evalStack.top();
+        evalStack.pop();
+        auto leftEvaluated = evalStack.top();
+        evalStack.pop();
 
+        if ((leftEvaluated->getType() == Object::Type::INTEGER) &&
+            (rightEvaluated->getType() == Object::Type::INTEGER))
+        {
+            evalStack.push(evalIntegerInfixExpression(expression.token->type,
+                    dynamic_cast<IntegerObject *>(leftEvaluated.get()),
+                    dynamic_cast<IntegerObject *>(rightEvaluated.get())));
+        }
+        else if ((leftEvaluated->getType() == Object::Type::BOOLEAN) &&
+                (rightEvaluated->getType() == Object::Type::BOOLEAN))
+        {
+            evalStack.push(evalBooleanInfixExpression(expression.token->type,
+                    dynamic_cast<BooleanObject *>(leftEvaluated.get()),
+                    dynamic_cast<BooleanObject *>(rightEvaluated.get())));
+        }
+        else
+        {
+            evalStack.push(std::make_shared<NullObject>());
+        }
+    }
+    else
+    {
+        visitStack.push(std::make_shared<InfixExpression>(expression));
+        visitStack.push(std::make_shared<ControlToken>(""));
+        visitStack.push(expression.right);
+        visitStack.push(expression.left);
+    }
 }
 
 void Evaluator::visitIfExpression(IfExpression &expression)
@@ -119,6 +157,60 @@ void Evaluator::addStatements(std::vector<std::shared_ptr<Statement>> statements
     {
         visitStack.push(*statement);
     }
+}
+
+std::shared_ptr<Object>
+Evaluator::evalIntegerInfixExpression(Token::TokenType op, IntegerObject *left, IntegerObject *right)
+{
+    if((left != nullptr) && (right != nullptr))
+    {
+        auto leftValue = left->getValue();
+        auto rightValue = right->getValue();
+
+        switch (op)
+        {
+            case Token::PLUS:
+                return std::make_shared<IntegerObject>(leftValue + rightValue);
+            case Token::MINUS:
+                return std::make_shared<IntegerObject>(leftValue - rightValue);
+            case Token::ASTERISK:
+                return std::make_shared<IntegerObject>(leftValue * rightValue);
+            case Token::SLASH:
+                return std::make_shared<IntegerObject>(leftValue / rightValue);
+            case Token::LT:
+                return std::make_shared<BooleanObject>(leftValue < rightValue);
+            case Token::GT:
+                return std::make_shared<BooleanObject>(leftValue > rightValue);
+            case Token::EQ:
+                return std::make_shared<BooleanObject>(leftValue == rightValue);
+            case Token::NEQ:
+                return std::make_shared<BooleanObject>(leftValue != rightValue);
+            default:
+                break;
+        }
+    }
+    return std::make_shared<NullObject>();
+}
+
+std::shared_ptr<Object>
+Evaluator::evalBooleanInfixExpression(Token::TokenType op, BooleanObject *left, BooleanObject *right)
+{
+    if((left != nullptr) && (right != nullptr))
+    {
+        auto leftValue = left->getValue();
+        auto rightValue = right->getValue();
+
+        switch (op)
+        {
+            case Token::EQ:
+                return std::make_shared<BooleanObject>(leftValue == rightValue);
+            case Token::NEQ:
+                return std::make_shared<BooleanObject>(leftValue != rightValue);
+            default:
+                break;
+        }
+    }
+    return std::make_shared<NullObject>();
 }
 
 

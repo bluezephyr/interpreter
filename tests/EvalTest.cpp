@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Blue Zephyr
+ * copyright (c) 2020 blue zephyr
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -97,6 +97,13 @@ TEST(EvalTest, bangPrefixOnIntegerReturnsFalse)
     CHECK_EQUAL(std::string("false"), evaluated->inspect());
 }
 
+TEST(EvalTest, bangPrefixOnNullReturnsTrue)
+{
+    auto evaluated = evaluateProgram("!(3+false);");
+    CHECK_EQUAL(Object::Type::BOOLEAN, evaluated->getType());
+    CHECK_EQUAL(std::string("true"), evaluated->inspect());
+}
+
 TEST(EvalTest, minusPrefixNegatesInteger)
 {
     auto evaluated = evaluateProgram("-5");
@@ -104,13 +111,13 @@ TEST(EvalTest, minusPrefixNegatesInteger)
     CHECK_EQUAL(std::string("-5"), evaluated->inspect());
 }
 
-IGNORE_TEST(EvalTest, evalIntegerExpression)
+TEST(EvalTest, evalIntegerExpression)
 {
     std::vector<IntegerTestSetup> tests
     {
         {"42;", 42},
         {"-312;", -312},
-        {"2+2;", 4},
+        {"2+3;", 5},
         {"8-3;", 5},
         {"3-8;", -5},
         {"3*8;", 24},
@@ -129,11 +136,26 @@ IGNORE_TEST(EvalTest, evalIntegerExpression)
     }
 }
 
-IGNORE_TEST(EvalTest, evalBooleanExpression)
+TEST(EvalTest, evalBooleanExpression)
 {
     std::vector<BooleanTestSetup> tests
     {
         {"true", true},
+        {"false", false},
+        {"1 < 2", true},
+        {"1 > 2", false},
+        {"1 < 1", false},
+        {"1 > 1", false},
+        {"1 == 1", true},
+        {"1 != 1", false},
+        {"1 == 2", false},
+        {"1 != 2", true},
+        {"true == true", true},
+        {"false == true", false},
+        {"true != true", false},
+        {"true != false", true},
+        {"(1 < 2) == true", true},
+        {"(1 > 2) == true", false},
     };
 
     for (auto test: tests)
@@ -143,6 +165,32 @@ IGNORE_TEST(EvalTest, evalBooleanExpression)
         CHECK(boolean != nullptr);
         CHECK_EQUAL(test.expected, boolean->getValue());
     }
+}
+
+TEST(EvalTest, arithmeticOperationOnNonIntegerValuesReturnsNull)
+{
+    std::vector<const char*> tests
+    {
+       "10+true;"
+       "10+12+3+false;"
+       "false+false;"
+       "false*8+2/true"
+       "-false"
+       "-true"
+    };
+
+    for(auto test: tests)
+    {
+        auto evaluated = evaluateProgram(test);
+        CHECK_EQUAL(Object::Type::NULLOBJECT, evaluated->getType());
+    }
+}
+
+IGNORE_TEST(EvalTest, evalSimpleReturnStatement)
+{
+    auto evaluated = evaluateProgram("return 10;");
+    CHECK_EQUAL(Object::Type::INTEGER, evaluated->getType());
+    CHECK_EQUAL(std::string("10"), evaluated->inspect());
 }
 
 int main(int ac, char** av)
