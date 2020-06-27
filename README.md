@@ -13,7 +13,7 @@ lexical analyser, a parser and a simple REPL have been implemented so far.
 A first version of a Read Eval Print Loop (REPL) has been implemented. The REPL is an interactive
 command line tool that reads input, send this input to the interpreter and outputs a result. An
 example can be seen below. The interpreter will take a line as input, send it through the lexer
-and the parser and then evaluateProgram the parsed statements.
+and the parser and then evaluate the parsed statements.
 
     Monkey Programming Language Interpreter!
     See https://monkeylang.org/ for more information
@@ -30,9 +30,10 @@ and the parser and then evaluateProgram the parsed statements.
     11
     >>> 3+4/2+9*(2+3)-8;
     42
-    >>> if (x)
-    Expected LBRACE token. Got EOF token (EOF)
-    Expected more tokens, but none present
+    >>> if (2 > 1) {10;}
+    10
+    >>> if (1 > 2) {10;} else {20;}
+    20
 
 ## Build
 The implementation of the interpreter is done i C++ and the build chain uses CMake. See

@@ -1,5 +1,5 @@
 /*
- * copyright (c) 2020 blue zephyr
+ * Copyright (c) 2020 Blue Zephyr
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -180,6 +180,43 @@ TEST(EvalTest, arithmeticOperationOnNonIntegerValuesReturnsNull)
     };
 
     for(auto test: tests)
+    {
+        auto evaluated = evaluateProgram(test);
+        CHECK_EQUAL(Object::Type::NULLOBJECT, evaluated->getType());
+    }
+}
+
+TEST(EvalTest, evalIfElseExpression)
+{
+    std::vector<IntegerTestSetup> tests
+    {
+        {"if (true)  { 10; };", 10},
+        {"if (1 < 2) { 10; };", 10},
+        {"if (true)  { 10; } else { 20 };", 10},
+        {"if (false) { 10; } else { 20 };", 20},
+        {"if (1)     { 10; } else { 20 };", 10},
+        {"if (1 < 2) { 10; } else { 20 };", 10},
+        {"if (1 > 2) { 10; } else { 20 };", 20},
+    };
+
+    for (auto test: tests)
+    {
+        auto evaluated = evaluateProgram(test.input);
+        auto* integer = dynamic_cast<IntegerObject*>(evaluated.get());
+        CHECK(integer != nullptr);
+        CHECK_EQUAL(test.expected, integer->getValue());
+    }
+}
+
+TEST(EvalTest, failedIfExpressionWithoutElseReturnNull)
+{
+    std::vector<const char*> tests
+    {
+        "if (false) {10;}",
+        "if (1 > 2) {10;}",
+    };
+
+    for (auto test: tests)
     {
         auto evaluated = evaluateProgram(test);
         CHECK_EQUAL(Object::Type::NULLOBJECT, evaluated->getType());

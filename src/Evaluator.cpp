@@ -117,7 +117,33 @@ void Evaluator::visitInfixExpression(InfixExpression &expression)
 
 void Evaluator::visitIfExpression(IfExpression &expression)
 {
+    if(goingUp)
+    {
+        auto result = evalStack.top();
+        evalStack.pop();
 
+        if (isTruthy(result))
+        {
+            visitStack.push(expression.consequence);
+        }
+        else
+        {
+            if (expression.alternative != nullptr)
+            {
+                visitStack.push(expression.alternative);
+            }
+            else
+            {
+                evalStack.push(std::make_shared<NullObject>());
+            }
+        }
+    }
+    else
+    {
+        visitStack.push(std::make_shared<IfExpression>(expression));
+        visitStack.push(std::make_shared<ControlToken>(""));
+        visitStack.push(expression.condition);
+    }
 }
 
 void Evaluator::visitLetStatement(LetStatement &statement)
@@ -137,7 +163,7 @@ void Evaluator::visitExpressionStatement(ExpressionStatement &statement)
 
 void Evaluator::visitBlockStatement(BlockStatement &statement)
 {
-
+    addStatements(statement.statements);
 }
 
 void Evaluator::visitProgram(Program &program)
@@ -211,6 +237,19 @@ Evaluator::evalBooleanInfixExpression(Token::TokenType op, BooleanObject *left, 
         }
     }
     return std::make_shared<NullObject>();
+}
+
+bool Evaluator::isTruthy(const std::shared_ptr<Object>& object)
+{
+    switch (object->getType())
+    {
+        case Object::BOOLEAN:
+            return dynamic_cast<BooleanObject *>(object.get())->getValue();
+        case Object::NULLOBJECT:
+            return false;
+        default:
+            return true;
+    }
 }
 
 
