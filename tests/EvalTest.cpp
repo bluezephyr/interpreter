@@ -223,12 +223,45 @@ TEST(EvalTest, failedIfExpressionWithoutElseReturnNull)
     }
 }
 
-IGNORE_TEST(EvalTest, evalSimpleReturnStatement)
+TEST(EvalTest, evalReturnStatements)
 {
-    auto evaluated = evaluateProgram("return 10;");
-    CHECK_EQUAL(Object::Type::INTEGER, evaluated->getType());
-    CHECK_EQUAL(std::string("10"), evaluated->inspect());
+    std::vector<IntegerTestSetup> tests
+    {
+        {"return 10;", 10},
+        {"return 10; 9;", 10},
+        {"return 2*5; 9;", 10},
+        {"8; return 2*5; 9;", 10},
+    };
+
+    for (auto test: tests)
+    {
+        auto evaluated = evaluateProgram(test.input);
+        auto* integer = dynamic_cast<IntegerObject*>(evaluated.get());
+        CHECK(integer != nullptr);
+        CHECK_EQUAL(test.expected, integer->getValue());
+    }
 }
+
+TEST(EvalTest, innermostValueReturnedInNestedBlocks)
+{
+    std::vector<IntegerTestSetup> tests
+    {
+        {"if (10 > 1) {if (10 > 1) {return 10;} return 1;}", 10},
+        {"if (10 > 1) {if (10 > 1) {10;} return 1;}", 1},
+        {"if (10 > 1) {if (10 > 1) {if (10 > 1) {return 20;} 10;} return 1;}", 20},
+        {"if (10 > 1) {if (1 > 10) {return 10;} return 1;}", 1},
+        {"if (10 > 1) {if (10 > 1) {if (1 > 10) {return 20;} return 10;} return 1;}", 10},
+    };
+
+    for (auto test: tests)
+    {
+        auto evaluated = evaluateProgram(test.input);
+        auto *integer = dynamic_cast<IntegerObject *>(evaluated.get());
+        CHECK(integer != nullptr);
+        CHECK_EQUAL(test.expected, integer->getValue());
+    }
+}
+
 
 int main(int ac, char** av)
 {

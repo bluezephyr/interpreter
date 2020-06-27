@@ -35,6 +35,7 @@ public:
 
 private:
     bool goingUp;
+    bool breakBlock;
     std::stack<std::shared_ptr<Node>> visitStack;
     std::stack<std::shared_ptr<Object>> evalStack;
     void addStatements(std::vector<std::shared_ptr<Statement>> statements);
@@ -43,6 +44,7 @@ private:
     static std::shared_ptr<Object> evalBooleanInfixExpression(Token::TokenType op, BooleanObject *left,
                                                               BooleanObject *right);
     static bool isTruthy(const std::shared_ptr<Object>& object);
+
 };
 
 

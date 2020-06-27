@@ -9,7 +9,7 @@
 #include "ControlToken.h"
 #include "Evaluator.h"
 
-Evaluator::Evaluator() : goingUp(false) {}
+Evaluator::Evaluator() : goingUp(false), breakBlock(false) {}
 
 std::shared_ptr<Object> Evaluator::eval(const std::shared_ptr<Node>& startNode)
 {
@@ -35,11 +35,13 @@ void Evaluator::visitIdentifier(Identifier &identifier)
 
 void Evaluator::visitInteger(Integer &integer)
 {
+    if(breakBlock) { return; }
     evalStack.push(std::make_shared<IntegerObject>(integer.value));
 }
 
 void Evaluator::visitBoolean(Boolean &boolean)
 {
+    if(breakBlock) { return; }
     evalStack.push(std::make_shared<BooleanObject>(boolean.value));
 }
 
@@ -55,6 +57,7 @@ void Evaluator::visitCallExpression(CallExpression &expression)
 
 void Evaluator::visitPrefixExpression(PrefixExpression &expression)
 {
+    if(breakBlock) { return; }
     if(goingUp)
     {
         goingUp = false;
@@ -79,6 +82,7 @@ void Evaluator::visitPrefixExpression(PrefixExpression &expression)
 
 void Evaluator::visitInfixExpression(InfixExpression &expression)
 {
+    if(breakBlock) { return; }
     if(goingUp)
     {
         goingUp = false;
@@ -117,8 +121,10 @@ void Evaluator::visitInfixExpression(InfixExpression &expression)
 
 void Evaluator::visitIfExpression(IfExpression &expression)
 {
+    if(breakBlock) { return; }
     if(goingUp)
     {
+        goingUp = false;
         auto result = evalStack.top();
         evalStack.pop();
 
@@ -153,17 +159,36 @@ void Evaluator::visitLetStatement(LetStatement &statement)
 
 void Evaluator::visitReturnStatement(ReturnStatement &statement)
 {
-
+    if(goingUp)
+    {
+        goingUp = false;
+        breakBlock = true;
+    }
+    else
+    {
+        visitStack.push(std::make_shared<ReturnStatement>(statement));
+        visitStack.push(std::make_shared<ControlToken>(""));
+        visitStack.push(statement.expression);
+    }
 }
 
 void Evaluator::visitExpressionStatement(ExpressionStatement &statement)
 {
+    if(breakBlock) { return; }
     visitStack.push(statement.expression);
 }
 
 void Evaluator::visitBlockStatement(BlockStatement &statement)
 {
-    addStatements(statement.statements);
+    if(breakBlock) { return; }
+    if(goingUp)
+    {
+        goingUp = false;
+    }
+    else
+    {
+        addStatements(statement.statements);
+    }
 }
 
 void Evaluator::visitProgram(Program &program)
