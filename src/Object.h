@@ -19,7 +19,8 @@ public:
     {
         INTEGER,
         BOOLEAN,
-        NULLOBJECT
+        NULLOBJECT,
+        ERROR
     };
 
     virtual ~Object() = default;
@@ -27,6 +28,16 @@ public:
     virtual enum Type getType() = 0;
     virtual std::shared_ptr<Object> evalBangPrefixExpression() = 0;
     virtual std::shared_ptr<Object> evalMinusPrefixExpression() = 0;
+};
+
+class ErrorObject : public Object
+{
+public:
+    ~ErrorObject() override = default;
+    std::string inspect() override;
+    Type getType() override;
+    std::shared_ptr<Object> evalMinusPrefixExpression() override;
+    std::shared_ptr<Object> evalBangPrefixExpression() override;
 };
 
 class NullObject : public Object

@@ -8,6 +8,45 @@
 
 #include "Object.h"
 
+std::string ErrorObject::inspect()
+{
+    return std::string();
+}
+
+Object::Type ErrorObject::getType()
+{
+    return ERROR;
+}
+
+std::shared_ptr<Object> ErrorObject::evalMinusPrefixExpression()
+{
+    return std::make_shared<NullObject>();
+}
+
+std::shared_ptr<Object> ErrorObject::evalBangPrefixExpression()
+{
+    return std::make_shared<NullObject>();
+}
+
+std::string NullObject::inspect()
+{
+    return std::string("null");
+}
+
+Object::Type NullObject::getType()
+{
+    return NULLOBJECT;
+}
+
+std::shared_ptr<Object> NullObject::evalBangPrefixExpression()
+{
+    return std::make_shared<BooleanObject>(true);
+}
+
+std::shared_ptr<Object> NullObject::evalMinusPrefixExpression()
+{
+    return std::make_shared<NullObject>();
+}
 IntegerObject::IntegerObject(int64_t value) : value(value) {}
 
 std::string IntegerObject::inspect()
@@ -62,23 +101,4 @@ std::shared_ptr<Object> BooleanObject::evalMinusPrefixExpression()
     return std::make_shared<NullObject>();
 }
 
-std::string NullObject::inspect()
-{
-    return std::string("null");
-}
-
-Object::Type NullObject::getType()
-{
-    return NULLOBJECT;
-}
-
-std::shared_ptr<Object> NullObject::evalBangPrefixExpression()
-{
-    return std::make_shared<BooleanObject>(true);
-}
-
-std::shared_ptr<Object> NullObject::evalMinusPrefixExpression()
-{
-    return std::make_shared<NullObject>();
-}
 

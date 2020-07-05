@@ -61,15 +61,20 @@ void Evaluator::visitPrefixExpression(PrefixExpression &expression)
     if(goingUp)
     {
         goingUp = false;
-        auto right = evalStack.top();
+        auto rightEvaluated = evalStack.top();
         evalStack.pop();
-        if(expression.token->type == Token::BANG)
+
+        if (expression.token->type == Token::MINUS)
         {
-            evalStack.push(right->evalBangPrefixExpression());
+            evalStack.push(evalMinusPrefixExpression(rightEvaluated));
         }
-        else if (expression.token->type == Token::MINUS)
+        else if(expression.token->type == Token::BANG)
         {
-            evalStack.push(right->evalMinusPrefixExpression());
+            evalStack.push(evalBangPrefixExpression(rightEvaluated));
+        }
+        else
+        {
+            // Error - unknown operator
         }
     }
     else
@@ -210,6 +215,36 @@ void Evaluator::addStatements(std::vector<std::shared_ptr<Statement>> statements
     }
 }
 
+std::shared_ptr<Object> Evaluator::evalMinusPrefixExpression(const std::shared_ptr<Object>& right)
+{
+    if(right->getType() == Object::Type::INTEGER)
+    {
+        return std::make_shared<IntegerObject>(-dynamic_cast<IntegerObject *>(right.get())->getValue());
+    }
+
+    return std::make_shared<NullObject>();
+}
+
+std::shared_ptr<Object> Evaluator::evalBangPrefixExpression(const std::shared_ptr<Object>& right)
+{
+    if (right->getType() == Object::Type::BOOLEAN)
+    {
+        return std::make_shared<BooleanObject>(!dynamic_cast<BooleanObject *>(right.get())->getValue());
+    }
+    else if (right->getType() == Object::Type::INTEGER)
+    {
+        return std::make_shared<BooleanObject>(false);
+    }
+    else if (right->getType() == Object::Type::NULLOBJECT)
+    {
+        return std::make_shared<BooleanObject>(true);
+    }
+    else
+    {
+        return std::make_shared<NullObject>();
+    }
+}
+
 std::shared_ptr<Object>
 Evaluator::evalIntegerInfixExpression(Token::TokenType op, IntegerObject *left, IntegerObject *right)
 {
@@ -276,5 +311,6 @@ bool Evaluator::isTruthy(const std::shared_ptr<Object>& object)
             return true;
     }
 }
+
 
 

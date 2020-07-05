@@ -25,6 +25,12 @@ struct BooleanTestSetup
     bool expected;
 };
 
+struct ErrorTestSetup
+{
+    const char* input;
+    std::string errorMessage;
+};
+
 TEST_GROUP(EvalTest)
 {
     void setup() override {}
@@ -261,7 +267,6 @@ TEST(EvalTest, innermostValueReturnedInNestedBlocks)
         CHECK_EQUAL(test.expected, integer->getValue());
     }
 }
-
 
 int main(int ac, char** av)
 {
