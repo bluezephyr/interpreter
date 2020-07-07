@@ -21,7 +21,6 @@ class Node
 public:
     virtual ~Node() = default;
     virtual std::string string() = 0;
-    virtual std::shared_ptr<Object> eval() = 0;
     virtual void accept(AstVisitor&) = 0;
 };
 
@@ -43,7 +42,6 @@ public:
     explicit Identifier(std::unique_ptr<Token> token);
     ~Identifier() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor&) override;
 
     std::shared_ptr<Token> token;
@@ -56,7 +54,6 @@ public:
     explicit Integer(std::unique_ptr<Token> token);
     ~Integer() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor&) override;
 
     std::shared_ptr<Token> token;
@@ -69,7 +66,6 @@ public:
     explicit Boolean(std::unique_ptr<Token> token, bool value);
     ~Boolean() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor&) override;
 
     std::shared_ptr<Token> token;
@@ -82,7 +78,6 @@ public:
     explicit Function(std::unique_ptr<Token> token);
     ~Function() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor&) override;
 
     std::shared_ptr<Token> token;
@@ -96,7 +91,6 @@ public:
     explicit CallExpression(std::unique_ptr<Token> token);
     ~CallExpression() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor&) override;
 
     std::shared_ptr<Token> token;
@@ -110,7 +104,6 @@ public:
     explicit PrefixExpression(std::unique_ptr<Token> token);
     ~PrefixExpression() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor&) override;
 
     std::shared_ptr<Token> token;
@@ -124,7 +117,6 @@ public:
     explicit InfixExpression(std::unique_ptr<Token> token);
     ~InfixExpression() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor&) override;
 
     std::shared_ptr<Token> token;
@@ -139,7 +131,6 @@ public:
     explicit IfExpression(std::unique_ptr<Token> token);
     ~IfExpression() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor&) override;
 
     std::shared_ptr<Token> token;
@@ -156,7 +147,6 @@ public:
     explicit LetStatement(std::unique_ptr<Token> token);
     ~LetStatement() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor&) override;
 
     std::shared_ptr<Token> token;
@@ -171,7 +161,6 @@ public:
     explicit ReturnStatement(std::unique_ptr<Token> token);
     ~ReturnStatement() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor&) override;
 
     std::shared_ptr<Token> token;
@@ -184,7 +173,6 @@ public:
     ExpressionStatement();
     ~ExpressionStatement() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor&) override;
 
     std::shared_ptr<Expression> expression;
@@ -196,7 +184,6 @@ public:
     BlockStatement() = default;
     ~BlockStatement() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor&) override;
 
     std::vector<std::shared_ptr<Statement>> statements;
@@ -209,7 +196,7 @@ public:
     Program() = default;
     ~Program() override = default;
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
+
     void accept(AstVisitor&) override;
     void addStatement(std::shared_ptr<Statement> statement);
 

@@ -14,11 +14,6 @@ std::string ControlToken::string()
     return _string;
 }
 
-std::shared_ptr<Object> ControlToken::eval()
-{
-    return nullptr;
-}
-
 void ControlToken::accept(AstVisitor &visitor)
 {
     visitor.visitControlToken(*this);

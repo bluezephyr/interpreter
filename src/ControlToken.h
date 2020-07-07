@@ -17,7 +17,6 @@ class ControlToken : public Node
 public:
     explicit ControlToken(std::string);
     std::string string() override;
-    std::shared_ptr<Object> eval() override;
     void accept(AstVisitor &visitor) override;
 
 private:
