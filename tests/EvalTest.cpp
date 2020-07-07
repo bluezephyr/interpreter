@@ -268,6 +268,23 @@ TEST(EvalTest, innermostValueReturnedInNestedBlocks)
     }
 }
 
+IGNORE_TEST(EvalTest, errorInPrefixExpressionReturnErrorMessage)
+{
+    std::vector<ErrorTestSetup> tests
+    {
+        {"-true", "undefined operation: -BOOLEAN"}
+    };
+
+    for(auto test: tests)
+    {
+        auto evaluated = evaluateProgram(test.input);
+        auto *error = dynamic_cast<ErrorObject *>(evaluated.get());
+        CHECK(error != nullptr);
+        CHECK_EQUAL(test.errorMessage, error->inspect());
+    }
+}
+
+
 int main(int ac, char** av)
 {
     return CommandLineTestRunner::RunAllTests(ac, av);
