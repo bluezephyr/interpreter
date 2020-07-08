@@ -30,7 +30,7 @@ and the parser and then evaluate the parsed statements.
     11
     >>> 3+4/2+9*(2+3)-8;
     42
-    >>> if (2 > 1) {10;}
+    >>> if (2 > 1) {return 10;}
     10
     >>> if (1 > 2) {10;} else {20;}
     20

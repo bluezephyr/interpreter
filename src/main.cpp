@@ -46,7 +46,7 @@ private:
 void runREPL()
 {
     std::cout << "Monkey Programming Language Interpreter!" << std::endl;
-    std::cout << "See https://monkeylang.org/ for more information" << std::endl;
+    std::cout << "See https://github.com/bluezephyr/interpreter for more information" << std::endl;
     std::cout << "Type in your commands (exit with CRTL-D)" << std::endl;
     std::cout << ">>> ";
     for (std::string line; std::getline(std::cin, line);)
