@@ -1,15 +1,8 @@
 # Find CppUTest installation
-if (DEFINED CPPUTEST_HOME)
-    # Use only the version in the CPPUTEST_HOME folder if it is defined
-    message(STATUS "Searching for CppUTest in: ${CPPUTEST_HOME}")
-    find_package(CppUTest REQUIRED NO_DEFAULT_PATH CONFIG HINTS ${CPPUTEST_HOME})
-else()
-    message(STATUS "Searching for installed version of CppUTest")
-    find_package(CppUTest REQUIRED CONFIG)
-endif()
-
-message(STATUS "CppUTest version: ${CppUTest_VERSION}")
-message(STATUS "CppUTest dir: ${CppUTest_DIR}")
+find_library(CPPUTESTLIB NAMES CppUTest HINTS ${CPPUTEST_HOME}/cpputest_build/lib)
+find_library(CPPUTESTEXTLIB NAMES CppUTestExt HINTS ${CPPUTEST_HOME}/cpputest_build/lib)
+message("CppUTest lib: ${CPPUTESTLIB}")
+message("CppUTestExt lib: ${CPPUTESTEXTLIB}")
 
 add_executable(token_test TokenTest.cpp)
 target_link_libraries(token_test token CppUTest CppUTestExt)

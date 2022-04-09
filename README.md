@@ -67,7 +67,8 @@ accomplished either by having the framework installed or by downloading and
 building it locally. The CMakeLists.txt for the test cases support both
 alternatives.
 
-To build the unit tests, set `COMPILE_TESTS=ON` when calling CMake.
+To build the unit tests, set `COMPILE_TESTS=ON` when calling CMake. This is
+default ON.
 
 ### Pre-Installed CppUTest
 
@@ -78,7 +79,7 @@ makefiles, build and run the tests:
     cd build
     cmake -DCOMPILE_TESTS=ON ..
     make all test -j
-Plug 'tpope/vim-fugitive' | Plug 'tpope/vim-rhubarb'
+
 ### Locally Built CppUTest
 
 To use a locally built version of the CppUTest framework, set the
