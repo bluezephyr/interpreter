@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <functional>
+#include <unordered_map>
 #include "Ast.h"
 #include "Lexer.h"
 
